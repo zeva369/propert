@@ -1,0 +1,24 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root{
+    --primary-color:#3782b4;
+    --secondary-color: #5e5e5e;
+    --link-hover-color:#275777;
+    --white-color: #fff;
+    --header-height: 80px;
+    --padding-left-right: 2em;
+    --max-width: 1200px;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+
+}
+
+body{
+    background-color: #202020;
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+}

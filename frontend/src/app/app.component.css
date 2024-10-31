@@ -1,0 +1,12 @@
+
+.header{
+    height: var(--header-height);
+    background-color: var(--primary-color);
+}
+
+.content{
+    position: relative;
+    height: calc(100vh - var(--header-height));
+    text-align: center;
+    z-index: 1;
+}

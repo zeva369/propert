@@ -1,0 +1,94 @@
+
+
+a{
+    text-decoration: none;
+}
+
+ol, ul{
+    list-style: none;
+}
+
+.navbar {
+    height: 100%;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
+    padding: 0 var(--padding-left-right);
+    z-index: 2;
+}
+
+.hamburguer-menu{
+    display: none;
+}
+
+/* Cuando el checkbox esté checked -> A su hermano adyacente cambiar la propiedad height*/
+.hamburguer-menu:checked + .menu_list{
+    height: calc(100vh - var(--header-height));
+}
+
+.logo{
+    color: var(--white-color);
+}
+
+.lbl_hamburguer {
+
+}
+
+.menu_icon {
+    color: var(--white-color);
+    cursor: pointer;
+}
+
+/* ul_links*/
+.menu_list {
+    width: 100%;
+    background-color: var(--primary-color);
+    position: absolute;
+    top: var(--header-height);
+    left:0;
+    
+    height: 0;
+    overflow: hidden;
+
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+
+    transition: all .3s;
+    
+}
+
+/* li_links*/
+.menu_item {
+
+}
+
+.link {
+    color: var(--white-color);
+    font-size: 2.5rem;
+}
+
+@media(min-width: 768px){
+    .lbl_hamburguer{
+        display: none;
+    }
+    .menu_list {
+        position: static;
+        width:auto;
+        height: auto;
+        flex-direction: row;
+        gap: 2 rem;
+    }
+    .link {
+        font-size: 1rem;
+        transition: all .3s;
+        padding: .2rem .7rem;
+    }
+    .link:hover{
+        background-color: var(--link-hover-color);
+    }
+}
