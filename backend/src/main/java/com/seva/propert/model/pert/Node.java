@@ -3,7 +3,7 @@ package com.seva.propert.model.pert;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.Getter;
@@ -16,9 +16,10 @@ public class Node {
     private Long id;
     private String label;
     
-    @JsonManagedReference
+    @JsonIgnore
     private Map<String,Edge> previous = new HashMap<>();
-    @JsonManagedReference
+
+    @JsonIgnore
     private Map<String,Edge> next = new HashMap<>(); 
     
     //This attributes are specific of PERT's critial path calculation

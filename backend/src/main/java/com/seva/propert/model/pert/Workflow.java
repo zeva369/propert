@@ -350,14 +350,16 @@ public class Workflow {
 
     private void calcTasksTimes() {
 
+        //This order is good, first we need to get the early starts & early finish to
+        //calculate then the latest times
         tasks.values().forEach((t) -> {
-            // Calcular early start & early finish
+            // Calculate early start & early finish
             t.setEarlyStart(getTaskEarlyStart(t));
             t.setEarlyFinish(t.getEarlyStart() + t.getLength());
         });
 
         tasks.values().forEach((t) -> {
-            // Calcular latest finish & latest start
+            // Calculate latest finish & latest start
             t.setLateFinish(getTaskLateFinish(t));
             t.setLateStart(t.getLateFinish() - t.getLength());
         });
@@ -373,18 +375,22 @@ public class Workflow {
                 edges.get(t.getId()).setCritical(false); // .color = '#2D68B9';
         });
 
+        // nodes.entrySet().forEach(entry -> {
+        //     // nodes 1 & 2 are first and last
+        //     // if (entry.getKey() > 2) {
+        //     // I removed the previous condition cause nodes 1 & 2 are also critical
+        //     // Color logic must be independent of critical path logic
+        //     if (entry.getValue().getStart().equals(entry.getValue().getEnd())) {
+        //         // nodes[n].color = {border:'#ff0000'}
+        //         entry.getValue().setCritical(true);
+        //     }
+        //     // }
+        // });
+
         // Nodos del camino crítico
-        nodes.entrySet().forEach(entry -> {
-            // nodes 1 & 2 are first and last
-            // if (entry.getKey() > 2) {
-            // I removed the previous condition cause nodes 1 & 2 are also critical
-            // Color logic must be independent of critical path logic
-            if (entry.getValue().getStart().equals(entry.getValue().getEnd())) {
-                // nodes[n].color = {border:'#ff0000'}
-                entry.getValue().setCritical(true);
-            }
-            // }
-        });
+        nodes.values().stream()
+            .filter(node -> node.getStart().equals(node.getEnd())) 
+            .forEach(n -> n.setCritical(true));
     }
 
 }
