@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seva.propert.context.ErrorMessages;
 import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
@@ -25,8 +26,9 @@ import com.seva.propert.model.entity.Project;
 import com.seva.propert.service.ProjectService;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/projects")
 public class ProjectController {
@@ -47,6 +49,13 @@ public class ProjectController {
     public ResponseEntity<Project> findById(@PathVariable Long id){
         Project foundProject = this.service.findById(id)
             .orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.PROJECT_FIND_BY_ID_NOT_FOUND));
+			
+			final ObjectMapper mapper = new ObjectMapper();
+			try {
+				log.info(mapper.writeValueAsString(foundProject.getWorkflow()));
+			} catch (Exception e) {
+	
+			}
         return ResponseEntity.ok(foundProject);
     }
 
