@@ -10,7 +10,13 @@ which is to stay Easy & Simple.
 
 ## Getting Started
 
-Installation:
+### Dependencies
+
+* NodeJs
+* Angular 
+* vs-code
+
+### Installation:
 
 ```
 git clone https://github.com/zeva369/propert.git
@@ -18,5 +24,15 @@ git clone https://github.com/zeva369/propert.git
 
 At this point you will find in your local repo two folders (backend & frontend)
 The backend is developed in Java with Spring Boot Framework, the FrontEnd is an Angular app.
+
+## Help
+
+## Authors
+
+## Version History
+
+## License
+
+## Acknowledgments
 
 
