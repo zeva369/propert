@@ -1,5 +1,4 @@
 
-
 a{
     text-decoration: none;
 }
@@ -8,7 +7,7 @@ ol, ul{
     list-style: none;
 }
 
-.navbar {
+.navbar{
     height: 100%;
     display:flex;
     justify-content: space-between;
@@ -19,12 +18,12 @@ ol, ul{
     z-index: 2;
 }
 
-.hamburguer-menu{
+.burguer-menu{
     display: none;
 }
 
 /* Cuando el checkbox esté checked -> A su hermano adyacente cambiar la propiedad height*/
-.hamburguer-menu:checked + .menu_list{
+.burguer-menu:checked + .menu_list{
     height: calc(100vh - var(--header-height));
 }
 
@@ -32,29 +31,30 @@ ol, ul{
     color: var(--white-color);
 }
 
-.lbl_hamburguer {
+.lbl_burguer{
 
 }
 
-.menu_icon {
+.menu_icon{
     color: var(--white-color);
     cursor: pointer;
 }
 
 /* ul_links*/
-.menu_list {
-    width: 100%;
-    background-color: var(--primary-color);
+.menu_list{
     position: absolute;
-    top: var(--header-height);
-    left:0;
-    
-    height: 0;
-    overflow: hidden;
-
     display:flex;
     flex-direction: column;
     justify-content: center;
+    
+    left:0;  
+    top: var(--header-height);
+    width: 100%;
+    height: 0;
+
+    background-color: var(--background); 
+    overflow: hidden;
+    
     align-items: center;
     gap: 3rem;
 
@@ -63,32 +63,38 @@ ol, ul{
 }
 
 /* li_links*/
-.menu_item {
+.menu_item{
 
 }
 
-.link {
-    color: var(--white-color);
+.link{
+    color: var(--almost-white-color);
     font-size: 2.5rem;
 }
 
+.link:hover{
+    color: var(--link-hover-color);
+}
+
 @media(min-width: 768px){
-    .lbl_hamburguer{
+    .lbl_burguer{
         display: none;
     }
-    .menu_list {
+    .menu_list{
         position: static;
-        width:auto;
-        height: auto;
+        display: flex;
         flex-direction: row;
+
+        width: auto;
+        height: auto;
+       
         gap: 2 rem;
     }
-    .link {
+
+    .link{
         font-size: 1rem;
         transition: all .3s;
         padding: .2rem .7rem;
     }
-    .link:hover{
-        background-color: var(--link-hover-color);
-    }
+    
 }

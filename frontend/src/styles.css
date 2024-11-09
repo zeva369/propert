@@ -1,13 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root{
+    --background: #1C1C1C;
     --primary-color:#3782b4;
     --secondary-color: #5e5e5e;
-    --link-hover-color:#275777;
+    --almost-white-color: #C4C4C4;
     --white-color: #fff;
+    --link-hover-color:var(--white-color);
     --header-height: 80px;
     --padding-left-right: 2em;
     --max-width: 1200px;
+    --gray-border: #3E3E3E;
 }
 
 *{
