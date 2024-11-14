@@ -50,7 +50,7 @@ public class Project {
     @PostLoad
     public void initialize() {
         //Initialize workflow data
-        workflow = new Workflow(this, tasks);
+        workflow = new Workflow(tasks);
     }
 
     
