@@ -3,6 +3,7 @@ package com.seva.propert.controller;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -32,6 +33,9 @@ import jakarta.validation.Valid;
 @Validated
 public class TaskController {
 
+	@Autowired
+    private ErrorMessages errorMessages;
+
 	private final TaskService service;
 
 	public TaskController(TaskService service) {
@@ -51,7 +55,7 @@ public class TaskController {
 	public ResponseEntity<Task> findById(@PathVariable String id) {
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 		return ResponseEntity.ok(foundTask);
 	}
 
@@ -60,7 +64,7 @@ public class TaskController {
 	public ResponseEntity<List<Task>> findPredecessors(@PathVariable String id) {
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
 		return ResponseEntity.ok(foundTask.getPredecessors());
 	}
@@ -71,11 +75,11 @@ public class TaskController {
 		//Only check that both tasks exists
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
 		Task predTask = this.service.findById(taskIn.getId())
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
 		foundTask.getPredecessors().add(predTask);
 		this.service.save(foundTask);
@@ -93,7 +97,7 @@ public class TaskController {
 		try {
 			createdTask = this.service.create(taskIn);
 		} catch (DuplicatedElementException e) {
-			throw new ProperBackendException(HttpStatus.CONFLICT, ErrorMessages.TASK_CREATE_DUPLICATED_ELEMENT);
+			throw new ProperBackendException(HttpStatus.CONFLICT, errorMessages.TASK_CREATE_DUPLICATED_ELEMENT);
 		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
 	}
@@ -108,7 +112,7 @@ public class TaskController {
 
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(
-						() -> new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.PROJECT_UPDATE_NOT_FOUND));
+						() -> new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.PROJECT_UPDATE_NOT_FOUND));
 
 		BeanUtils.copyProperties(taskDetails, foundTask);
 		Task savedTask = this.service.save(foundTask);
@@ -122,10 +126,10 @@ public class TaskController {
 		try {
 			this.service.deleteById(id);
 		} catch (ElementNotFoundException ex) {
-			throw new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.TASK_DELETE_BY_ID_NOT_FOUND);
+			throw new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.TASK_DELETE_BY_ID_NOT_FOUND);
 		} catch (Exception ex) {
 			throw new ProperBackendException(HttpStatus.INTERNAL_SERVER_ERROR,
-					ErrorMessages.PROJECT_DELETE_CANT_DELETE);
+					errorMessages.PROJECT_DELETE_CANT_DELETE);
 		}
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}

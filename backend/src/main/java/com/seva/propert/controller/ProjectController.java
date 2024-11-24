@@ -3,6 +3,7 @@ package com.seva.propert.controller;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seva.propert.context.ErrorMessages;
 import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
@@ -33,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/projects")
 public class ProjectController {
 
+	@Autowired
+    private ErrorMessages errorMessages;
+
     private final ProjectService service;
 
     public ProjectController(ProjectService service){
@@ -48,14 +51,14 @@ public class ProjectController {
     @GetMapping("/{id}")
     public ResponseEntity<Project> findById(@PathVariable Long id){
         Project foundProject = this.service.findById(id)
-            .orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.PROJECT_FIND_BY_ID_NOT_FOUND));
+            .orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.PROJECT_FIND_BY_ID_NOT_FOUND));
 			
-			final ObjectMapper mapper = new ObjectMapper();
-			try {
-				log.info(mapper.writeValueAsString(foundProject.getWorkflow()));
-			} catch (Exception e) {
+			// final ObjectMapper mapper = new ObjectMapper();
+			// try {
+			// 	// log.info(mapper.writeValueAsString(foundProject.getWorkflow()));
+			// } catch (Exception e) {
 	
-			}
+			// }
         return ResponseEntity.ok(foundProject);
     }
 
@@ -69,7 +72,7 @@ public class ProjectController {
 		try {
 			createdProject = this.service.create(projectIn);
 		} catch (DuplicatedElementException e) {
-			throw new ProperBackendException(HttpStatus.CONFLICT, ErrorMessages.PROJECT_CREATE_DUPLICATED_ELEMENT);
+			throw new ProperBackendException(HttpStatus.CONFLICT, errorMessages.PROJECT_CREATE_DUPLICATED_ELEMENT);
 		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
@@ -82,7 +85,7 @@ public class ProjectController {
 		}
 		
 		Project foundProject = this.service.findById(id)
-				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.PROJECT_UPDATE_NOT_FOUND));
+				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.PROJECT_UPDATE_NOT_FOUND));
 
 		BeanUtils.copyProperties(projectDetails, foundProject);
 		Project savedProject = this.service.save(foundProject);
@@ -96,9 +99,9 @@ public class ProjectController {
 		try {
 			this.service.deleteById(id);
 		} catch (ElementNotFoundException ex) {
-			throw new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.PROJECT_DELETE_BY_ID_NOT_FOUND);
+			throw new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.PROJECT_DELETE_BY_ID_NOT_FOUND);
 		} catch (Exception ex) {
-			throw new ProperBackendException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.PROJECT_DELETE_CANT_DELETE);
+			throw new ProperBackendException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessages.PROJECT_DELETE_CANT_DELETE);
 		}
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}

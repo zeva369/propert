@@ -9,33 +9,36 @@ import org.springframework.context.annotation.PropertySource;
 public class ErrorMessages {
     //Project messages
     @Value("${controller.project.find-by-id.not-found}")
-    public static String PROJECT_FIND_BY_ID_NOT_FOUND;
+    public String PROJECT_FIND_BY_ID_NOT_FOUND;
 
     @Value("${controller.project.create.duplicated-element}")
-    public static String PROJECT_CREATE_DUPLICATED_ELEMENT;
+    public String PROJECT_CREATE_DUPLICATED_ELEMENT;
 
     @Value("${controller.project.update.not-found}")
-    public static String PROJECT_UPDATE_NOT_FOUND;
+    public String PROJECT_UPDATE_NOT_FOUND;
 
     @Value("${controller.project.delete-by-id.not-found}")
-    public static String PROJECT_DELETE_BY_ID_NOT_FOUND;
+    public String PROJECT_DELETE_BY_ID_NOT_FOUND;
 
     @Value("${controller.project.delete-by-id.cant-delete}")
-    public static String PROJECT_DELETE_CANT_DELETE;
+    public String PROJECT_DELETE_CANT_DELETE;
 
     //Task messages
     @Value("${controller.task.find-by-id.not-found}")
-    public static String TASK_FIND_BY_ID_NOT_FOUND;
+    public String TASK_FIND_BY_ID_NOT_FOUND;
 
     @Value("${controller.task.create.duplicated-element}")
-    public static String TASK_CREATE_DUPLICATED_ELEMENT;
+    public String TASK_CREATE_DUPLICATED_ELEMENT;
 
     @Value("${controller.task.update.not-found}")
-    public static String TASK_UPDATE_NOT_FOUND;
+    public String TASK_UPDATE_NOT_FOUND;
 
     @Value("${controller.task.delete-by-id.not-found}")
-    public static String TASK_DELETE_BY_ID_NOT_FOUND;
+    public String TASK_DELETE_BY_ID_NOT_FOUND;
 
     @Value("${controller.task.delete-by-id.cant-delete}")
-    public static String TASK_DELETE_CANT_DELETE;
+    public String TASK_DELETE_CANT_DELETE;
+
+    @Value("${workflow.loop}")
+    public String WORKFLOW_LOOP;
 }

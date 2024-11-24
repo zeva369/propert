@@ -1,0 +1,19 @@
+<div class="container">
+    <div class="input-group">
+        <input id="taskId" type="text" [(ngModel)]="taskId" autocomplete="off" required>
+        <label for="">Id</label>
+    </div>
+    <div class="input-group">
+        <input id="taskDescription" type="text" [(ngModel)]="taskDescription" autocomplete="off" required>
+        <label for="">Descripción</label>
+    </div>
+    <div class="input-group">
+        <input id="taskLength" type="number" [(ngModel)]="taskLength" autocomplete="off" step="any" required>
+        <label for="">Duración</label>
+    </div>
+    <div class="input-group">
+        <input id="taskPredecessors" type="text" [(ngModel)]="taskPredecessors" autocomplete="off" required>
+        <label for="">Predecesores</label>
+    </div>
+    <button (click)="addTask()">Guardar</button>
+</div>

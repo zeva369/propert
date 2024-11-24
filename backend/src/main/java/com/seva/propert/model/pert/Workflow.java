@@ -122,7 +122,7 @@ public class Workflow {
         // Map<String, Task> dependencies = new HashMap<>();
         String predecessors = "";
         for(Task t : dependencies){
-            log.info("\t\t" + t.getId() + " -> " + listAsString(t.getPredecessors()));
+            log.debug("\t\t" + t.getId() + " -> " + listAsString(t.getPredecessors()));
             String taskDep = listAsString(t.getPredecessors());
 
             if (predecessors.length() == 0) {
@@ -168,7 +168,7 @@ public class Workflow {
         while (index < ts.size()) {
             Task task = ts.get(index);
 
-            log.info("Task: " + task.getId());
+            log.debug("Task: " + task.getId());
             // If there are task wich depends on task
             if (!task.getDependencies().isEmpty()) {
                 String conflictTaskId = getDepWithDifferentPredecessors(task.getDependencies());
@@ -184,12 +184,12 @@ public class Workflow {
                 // // When more than one task depends on task
                 // // if (task.getDependencies().size() > 1) {
                 // if (!depWithSamePredecessors(taskDependencies)) {
-                    log.info("\tTask " + task.getId() + " has dependencies with different predecessors");
+                    log.debug("\tTask " + task.getId() + " has dependencies with different predecessors");
                    
                     //Iterator<Task> nextTasks = task.getDependencies().iterator();
                     //while (nextTasks.hasNext()) {
                         Task conflictTask = tasks.get(conflictTaskId);//nextTasks.next();
-                        log.info("\t\tDep: " + conflictTask.getId());
+                        log.debug("\t\tDep: " + conflictTask.getId());
 
                         // List<Task> taskDependencies = task.getDependencies()
                         // .stream()
@@ -220,7 +220,7 @@ public class Workflow {
                                     task.getProject(),
                                     true, -1d, -1d, -1d, -1d,
                                     Arrays.asList(conflictTask));
-                            log.info("\t\tCreo dummy: " + dummyTaskId);
+                            log.debug("\t\tCreo dummy: " + dummyTaskId);
                             tasks.put(dummyTaskId, dummyTask);
                             //Remuevo como dependencia a next
                             //nextTasks.remove();
@@ -232,7 +232,7 @@ public class Workflow {
                             conflictTask.getPredecessors().remove(task);
                             conflictTask.getPredecessors().add(dummyTask);
 
-                            log.info("\t\tTask: " + conflictTask.getId() + " cambio predecesores: " + task.getId() + " x " + dummyTaskId);
+                            log.debug("\t\tTask: " + conflictTask.getId() + " cambio predecesores: " + task.getId() + " x " + dummyTaskId);
                        
                         
                     // }

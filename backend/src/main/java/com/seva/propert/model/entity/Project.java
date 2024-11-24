@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.seva.propert.model.pert.Workflow;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,7 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,13 +42,13 @@ public class Project {
 
     //Different from tasks as tasks contains only the ones created by the user and
     //workflow manage those plus the dummy tasks auto-generated
-    @Transient
-    private Workflow workflow = null;
+    // @Transient
+    // private Workflow workflow = null;
 
     @PostLoad
     public void initialize() {
         //Initialize workflow data
-        workflow = new Workflow(tasks);
+        //workflow = new Workflow(tasks);
     }
 
     

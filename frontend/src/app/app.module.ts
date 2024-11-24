@@ -6,20 +6,29 @@ import { AppComponent } from './app.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { HomeComponent } from './home/home.component';
 import { ExamplesComponent } from './examples/examples.component';
+import { ProjectService } from './project.service';
+import { HttpClientModule } from '@angular/common/http';
+import { PertchartComponent } from './pertchart/pertchart.component';
+import { TaskEditorComponent } from './task-editor/task-editor.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
     HomeComponent,
-    ExamplesComponent
+    ExamplesComponent,
+    PertchartComponent,
+    TaskEditorComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule
     // RouterModule
   ],
-  providers: [],
+  providers: [ProjectService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

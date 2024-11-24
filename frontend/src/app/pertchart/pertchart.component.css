@@ -1,0 +1,57 @@
+.vis-container {
+    position: relative; /* Necesario para que el div hijo se posicione relativo a este */
+    width: min(500px, 100vh);
+    height: 500px;
+    /* width: 100%;
+    height: 100vh; */
+    /* border: 1px solid #474444;  */
+  }
+
+.chart {
+    /* width: 100%; height: 70vh;  */
+    /* background: #EEE;  */
+    border: 1px solid black; 
+    background-color: rgb(255, 255, 255);
+    border-radius: 8px;
+    border-color: white;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    z-index: -1;
+}
+
+.error {
+  border: 1px solid rgb(87, 87, 87);
+  border-radius: 8px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+  gap:30px;
+  width:100%;
+  color:#69211e;
+}
+
+.errorMessage {
+  width:100%;
+  font-size:1.5em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.lock-button {
+  font-size: 3em;
+  cursor: pointer;
+  position: absolute; /* Posiciona relativo al contenedor principal */
+  top: 10px; /* Espaciado desde la parte superior */
+  right: 10px; /* Espaciado desde la parte derecha */
+  width:40px;
+  height: 40px;
+  border: 1px;
+  border-radius: 5px;
+  font-size: 14px;
+  z-index: 10;
+}

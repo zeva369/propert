@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.seva.propert.exception.WorkFlowLoopException;
 import com.seva.propert.model.entity.Task;
 
 import lombok.AllArgsConstructor;
@@ -47,20 +48,38 @@ public class Workflow2 {
             this.dependencies += (dependencies.length() == 0 ? "" : ",").concat(dep);
         }
 
+        //Changed these two method's behaviour because replacing strings leads to errors
+        //If i replace task D for X and we have a task D2 wi will end in X2
+        //Now i search for entire elements
         public void replacePredecessor(String oldTaskId, String newTaskId) {
-            this.predecessors = this.predecessors.replace(oldTaskId, newTaskId);
+            String[] elements = this.predecessors.split(",");
+
+            this.predecessors = Arrays.stream(elements)
+            .map(element -> element.equals(oldTaskId) ? newTaskId : element) // Reemplazar solo si coincide
+            .collect(Collectors.joining(","));
         }
 
         public void replaceDependency(String oldTaskId, String newTaskId) {
-            this.dependencies = this.dependencies.replace(oldTaskId, newTaskId);
+            String[] elements = this.dependencies.split(",");
+
+            this.dependencies = Arrays.stream(elements)
+            .map(element -> element.equals(oldTaskId) ? newTaskId : element) // Reemplazar solo si coincide
+            .collect(Collectors.joining(","));
         }
 
     }
 
     @JsonIgnore
     private Map<String, TaskElement> tasks = null;
+    // @JsonIgnore
     private Map<Long, Node> nodes = new HashMap<>();
+    // @JsonIgnore
     private Map<String, Edge> edges = new HashMap<>();
+
+    // @JsonProperty("nodes")
+    // private List<Node> nds;
+    // @JsonProperty("edges")
+    // private List<Edge> eds;
 
     @JsonIgnore
     private Long nodeCounter = 1L;
@@ -78,7 +97,9 @@ public class Workflow2 {
         lastNode = new Node(nodeCounter++, "F");
         nodes.put(firstNode.getId(), firstNode);
         nodes.put(lastNode.getId(), lastNode);
-        initialize();
+        //initialize();
+        // nds = nodes.values().stream().collect(Collectors.toList());
+        // eds = edges.values().stream().collect(Collectors.toList());
     }
 
     private TaskElement taskToTaskElement(Task t) {
@@ -97,19 +118,21 @@ public class Workflow2 {
         return element;
     }
 
-    private void initialize() {
-        if (!hasLoop()) {
-            calcNextTasks();
-            createDummyTasks();
-            nestTasks();
-            nestNodes();
-            calcNodesTimes();
-            calcTasksTimes();
-            calcCriticPath();
-        }
+    public void checkAndInitialize() throws WorkFlowLoopException {
+        if (hasLoop()) throw new WorkFlowLoopException();
+        initialize();
     }
 
-    // PERT specific methods
+    private void initialize() {
+        calcNextTasks();          //First calculate dependencies (we have only the predecessors)
+        createDummyTasks();       //Then look for conflicted tasks and resolve tham by adding dummy tasks
+        calcEdgesAndNodes();      //Create the edges & nodes collection
+        nestNodes();              //Associate the nodes by the edges
+        //PERT calculations
+        calcNodesTimes();         //Calculate the starting & finalizing times of nodes
+        calcTasksTimes();         //Calculate the tasks(edges) times based on nodes times
+        calcCriticPath();         //Calculate wich nodes and edges belong to the critical path
+    }
 
     // Recursive function: Evaluates if a given task has any loop in their
     // dependencies
@@ -171,6 +194,54 @@ public class Workflow2 {
         return String.join(",", array);
     }
 
+    //Check different situations on wich 
+    private String checkConflict(String dependencies) {
+        String tasksWithDifferentPred = getDepWithDifferentPredecessors(dependencies);
+        Boolean tasksSharePred = dependenciesShareAnyPredecessor(dependencies);
+        String tasksWithSamePath = getTasksWithSamePath(dependencies);
+
+        //Here we look for tasks whose predecessors & dependencies match exactly
+        if (tasksWithSamePath != null) {
+            return tasksWithSamePath;
+        //Here we look for tasks who share at least one predecessor but whose predecesors are not exactly the same
+        } else if (tasksWithDifferentPred != null && tasksSharePred) {
+            return tasksWithDifferentPred;
+        } else return null;
+    }
+
+    //This function uses sets for readability and consistence, 
+    //we could just order strings with orderTasks() and compare them
+    private Boolean equalsIgnoreOrder(String path1, String path2) {
+        Set<String> set1 = new HashSet<>(Arrays.asList(path1.split(",")));
+        Set<String> set2 = new HashSet<>(Arrays.asList(path2.split(",")));
+        return set1.equals(set2);
+    }
+
+    private String getTasksWithSamePath(String dependencies) {
+        //Each dependent task is compared with all the others for coincidences
+        String[] dep = orderTasks(dependencies).split(",");
+        for (String taskId : dep) {
+            TaskElement task = tasks.get(taskId);
+
+            // String taskPred = orderTasks(task.getPredecessors());
+            // String taskDep = orderTasks(task.getDependencies());
+
+            for (String otherId : dep) {
+                if (!taskId.equalsIgnoreCase(otherId)){
+                     TaskElement taskOther = tasks.get(otherId);
+                     if (equalsIgnoreOrder(task.getPredecessors(), taskOther.getPredecessors()) &&
+                         equalsIgnoreOrder(task.getDependencies(), taskOther.getDependencies())) return taskId;
+
+                    // if (taskPred.equalsIgnoreCase(orderTasks(taskOther.getPredecessors())) &&
+                    //     taskDep.equalsIgnoreCase(orderTasks(taskOther.getDependencies()))) {
+                    //     return taskId;
+                    // }
+                }
+            }
+        }
+        return null;
+    }
+
     private String getDepWithDifferentPredecessors(String dependencies) {
         String predecessors = "";
         //En este mapa se guardaran las tareas junto con sus predecesores
@@ -185,15 +256,15 @@ public class Workflow2 {
             //Lo guardo al revés, la clave como valor y el valor como clave
             //de esta forma puedo buscar luego por una combinación de tareas predecesoras
             //Si es la misma no importa porque cualquiera me viene bien
-            log.info("taskPred: " +taskPred);
+            log.debug("\t" + taskId + " predecessors: " + taskPred);
             pred.put(taskPred, taskId);
 
-            log.info("\t\t" + taskId + " -> " + taskPred);
             if (predecessors.length() == 0) {
                 predecessors = taskPred;
             } else if (!predecessors.equalsIgnoreCase(taskPred)) {
                 // return taskId;
                 different = true;
+                log.debug("\tCorta el recorrido de las dependencias");
                 break;
             }
         }
@@ -201,27 +272,14 @@ public class Workflow2 {
             Optional<String> bigger = pred.keySet().stream()
             .max( Comparator.comparingInt(String::length));
             //.collect(Collectors.joining(","));
-            log.info("Bigger: " + bigger.get());
+            log.debug("\tBigger: " + pred.get(bigger.get()) + " -> " + bigger.get());
             return bigger.isPresent() ?  pred.get(bigger.get()) : null;
         }
         return null;
     }
 
-    // private synchronized Boolean depWithSamePredecessors(List<Task>
-    // dependencies){
-    // // Map<String, Task> dependencies = new HashMap<>();
-    // String predecessors = "";
-    // for(Task t : dependencies){
-    // log.info("\t\t" + t.getId() + " -> " + listAsString(t.getPredecessors()));
-    // String taskDep = listAsString(t.getPredecessors());
-
-    // if (predecessors.length() == 0) {
-    // predecessors = taskDep;
-    // } else if (!predecessors.equalsIgnoreCase(taskDep)) return false;
-    // }
-    // return true;
-    // }
-
+    //Given a list of dependencies:
+    //Check if some of them share exactly the same predecessors list
     private Boolean dependenciesShareAnyPredecessor(String dependencies) {
         String predecessors = "";
         String[] dep = orderTasks(dependencies).split(",");
@@ -246,23 +304,21 @@ public class Workflow2 {
                 .collect(Collectors.joining(","));
     }
 
+    //This is the main source of bugs cause it is the more complex function
     private void createDummyTasks() {
         for (TaskElement task : new ArrayList<>(tasks.values())) {
-            log.info("Task: " + task.getId());
+            log.debug("Task: " + task.getId());
 
-            int counter = 0;
             // If there are task wich depends on task
             if (!task.getDependencies().isEmpty()) {
+                int counter = 1;
 
-                // Mientras haya tareas en conflicto seguir en el bucle para solucionarlo
-                String conflictTaskId = getDepWithDifferentPredecessors(task.getDependencies());
-                while (conflictTaskId != null &&
-                        dependenciesShareAnyPredecessor(task.getDependencies()) && counter < 15) {
-
-                    log.info("\tTask " + task.getId() + " has dependencies with different predecessors");
+                String conflictTaskId = checkConflict(task.getDependencies());
+                while(conflictTaskId != null) {
+                    log.debug("-- Ciclo:" + counter++ + "--");
 
                     TaskElement conflictTask = tasks.get(conflictTaskId);// nextTasks.next();
-                    log.info("\t\tDep: " + conflictTaskId);
+                    log.debug("\tTask " + task.getId() + " tiene conflicto con dedendencia: " + conflictTaskId);
 
                     String dummyTaskId = "D" + dummyTaskCounter++;
                     TaskElement dummyTask = new TaskElement(dummyTaskId,
@@ -271,74 +327,87 @@ public class Workflow2 {
                             task.getId(),
                             true, -1d, -1d, -1d, -1d,
                             conflictTaskId);
-                    log.info("\t\tCreo dummy: " + dummyTaskId);
+                    log.debug("\t\tCreo dummy: " + dummyTaskId);
 
                     tasks.put(dummyTaskId, dummyTask);
 
                     // Literally i put the dummy task in middle of task & its dependencies
-                    log.info("\t\tTask: " + conflictTask.getId() + " cambio predecesores: " + task.getId() + " x "
+                    log.debug("\t\tTask: " + conflictTask.getId() + " cambio predecesores: " + task.getId() + " x "
                             + dummyTaskId);
                     task.replaceDependency(conflictTaskId, dummyTaskId);
-                    log.info("**" + conflictTask.getPredecessors());
                     conflictTask.replacePredecessor(task.getId(), dummyTaskId);
-                    log.info("**" + conflictTask.getPredecessors());
 
-                    conflictTaskId = getDepWithDifferentPredecessors(task.getDependencies());
-                    counter++;
+                    conflictTaskId = checkConflict(task.getDependencies());
                 }
             }
+        }
+        log.debug("------- Tasks ------");
+        for (TaskElement task : new ArrayList<>(tasks.values())) {
+            log.debug(task.getId() + " PRED -> " + task.getPredecessors());
+            log.debug(task.getId() + " DEP  -> " + task.getDependencies());
         }
     }
 
     private void edgeAddOrigin(TaskElement task, String prev) {
 
         Edge edgeTask = edges.get(task.getId());
-        Edge edgePrev = edges.get(prev);
 
         if (edges.containsKey(prev)) {
+            Edge edgePrev = edges.get(prev);
 
             if (edgePrev.getTo() != null) {
                 edgeTask.setFrom(edgePrev.getTo());
                 // log.info(edgePrev.getTo().getId() + " -> " + task.getId());
             } else {
-
+                //Aquí no debería entrar nunca porque cuando se crea la arista inmediatamente despues 
+                //se asigna a un nodo
             }
 
         } else {
             // Creo un nuevo nodo y se lo asigno al campo to
             if (edgeTask.getFrom() == null) {
-                Long newNodeId = nodeCounter++;
-                Node newNode = new Node(newNodeId, newNodeId.toString());
-                nodes.put(newNodeId, newNode); // { id: newNode, label: newNode.toString(), start:0, end:0, next:[],
-                                               // prev:[]};
-                edgeTask.setFrom(newNode);
-
-                // log.info("Se agrega node " + newNodeId);
-                // log.info(newNodeId + " -> " + task.getId());
-
-                // Tambien aprovecho y creo el edge siguiente y le asigno el from
-                // Edge newEdge = new Edge(prev.getId(), prev.getId() + "," + prev.getLength(),
-                // null, newNode, false);
-                // edges.put(prev.getId(), newEdge); // {label:prev + "," + tasks[prev].length,
-                // from:null, to:newNode,
-                // log.info("Se agrega edge " + newEdge.getId());
-                // log.info(newEdge.getId() + " -> " + newNodeId);// dashes: tasks[prev].dummy};
+                //Antes de crear un nuevo nodo tengo que ver si hay otro de los predecesores que si 
+                //estan creados, solo si ninguno tiene el to establecido puedo crear un nodo
+                String found = "";
+                for(String t : task.getPredecessors().split(",")) {
+                    if (!t.equalsIgnoreCase(prev)){
+                        if (edges.containsKey(t) && edges.get(t).getTo() != null) {
+                            found = t;
+                            break;
+                        }
+                    }
+                }
+                if (found.equals("")) {
+                    Long newNodeId = nodeCounter++;
+                    Node newNode = new Node(newNodeId, newNodeId.toString());
+                    nodes.put(newNodeId, newNode); // { id: newNode, label: newNode.toString(), start:0, end:0, next:[],
+                                                // prev:[]};
+                    edgeTask.setFrom(newNode);
+                    log.debug("add origin: Nodo " + newNodeId + " creado.");
+                }
+            } else {
+                //Aquí no hace falta hacer nada, entra cuando hay varios predecesores,
+                //el primero crea un nodo y luego los siguientes no necesitan ser procesados
             }
         }
     }
 
     private void edgeAddDestination(TaskElement task, String next) {
         Edge edgeTask = edges.get(task.getId());
-        Edge edgeNext = edges.get(next);
 
+        //Si existe una arista para la tarea siguiente
         if (edges.containsKey(next)) {
+            Edge edgeNext = edges.get(next);
 
-            // Si existe una arista para la tarea siguiente y esta tiene definido un nodo
-            // 'from' entonces lo tomo como nodo 'to' de esta
+            // Si esta tiene definido un nodo 'from'
+            // entonces lo tomo como nodo 'to' de esta
             if (edgeNext.getFrom() != null) {
                 edgeTask.setTo(edgeNext.getFrom());
                 // log.info(task.getId() + " -> " + edgeNext.getFrom().getId());
             } else {
+                //Aquí no debería entrar nunca porque cuando se crea la arista inmediatamente despues 
+                //se asigna a un nodo
+
                 // // Creo un nuevo nodo y se lo asigno al campo to
                 // Long newNodeId = nodeCounter++;
                 // Node newNode = new Node(newNodeId, newNodeId.toString());
@@ -348,28 +417,40 @@ public class Workflow2 {
             }
 
         } else {
+            //Aquí entra porque no existe todavía una arista creada en el método calcEdgesAndNodes
+            //Si no existe un edge creado para la siguiente tarea y
+            // el campo To de la arista es nulo, tengo que crear un nodo y asignarselo
             if (edgeTask.getTo() == null) {
-                // Creo un nuevo nodo y se lo asigno al campo to
-                Long newNodeId = nodeCounter++;
-                Node newNode = new Node(newNodeId, newNodeId.toString());
-                nodes.put(newNodeId, newNode);
-                edgeTask.setTo(newNode);
-
-                // log.info("Se agrega node " + newNodeId);
-                // log.info(task.getId() + " -> " + newNodeId);
-
-                // Tambien aprovecho y creo el edge siguiente y le asigno el from
-                // Edge newEdge = new Edge(next.getId(), next.getId() + "," + next.getLength(),
-                // newNode, null, false);
-                // edges.put(next.getId(), newEdge);
-                // log.info("Se agrega edge " + newEdge.getId());
-                // log.info( newNodeId + " -> " + newEdge.getId());
+                //Antes de crear un nuevo nodo tengo que ver si hay otra de las dependencias que si 
+                //este creada, solo si ninguna tiene el from establecido puedo crear un nodo
+                String found = "";
+                for(String t : task.getDependencies().split(",")) {
+                    if (!t.equalsIgnoreCase(next)){
+                        if (edges.containsKey(t) && edges.get(t).getFrom() != null) {
+                            found = t;
+                            break;
+                        }
+                    }
+                }
+                if (found.equals("")) {
+                    // Creo un nuevo nodo y se lo asigno al campo to
+                    Long newNodeId = nodeCounter++;
+                    Node newNode = new Node(newNodeId, newNodeId.toString());
+                    nodes.put(newNodeId, newNode);
+                    edgeTask.setTo(newNode);
+                    log.debug("add destination: Nodo " + newNodeId + " creado.");
+                }
+                
+            } else {
+                //Aquí no hace falta hacer nada, entra cuando hay varias dependencias,
+                //la primera crea un nodo y luego las siguientes no necesitan ser procesadas
             }
         }
     }
 
-    private void nestTasks() {
+    private void calcEdgesAndNodes() {
         tasks.forEach((t, task) -> {
+            log.debug(task.getId());
             // log.info("task: ".concat(t));
             if (!edges.containsKey(t)) {
                 Edge newEdge = new Edge(t, t + "," + task.getLength(), null, null, false);
@@ -382,17 +463,21 @@ public class Workflow2 {
                 edges.get(t).setFrom(firstNode);
                 // log.info("Se conecta el edge " + t + " al nodo inicial");
             } else {
+                log.debug("\t" + task.getPredecessors() + " -> " + task.getId());
                 // Para c/u de los elementos en predecessors
                 String[] predecessors = orderTasks(task.getPredecessors()).split(",");
                 for (String p : predecessors)
                     edgeAddOrigin(task, p);
             }
 
+            log.debug("------------");
+
             // NEXT
             if (task.getDependencies().isEmpty()) {
                 edges.get(t).setTo(lastNode);
                 // log.info("Se conecta el edge " + t + " al nodo final");
             } else {
+                log.debug("\t" + task.getId() + " -> " + task.getDependencies());
                 // Para c/u de los elementos en next
                 String[] dependencies = orderTasks(task.getDependencies()).split(",");
                 for (String n : dependencies)
