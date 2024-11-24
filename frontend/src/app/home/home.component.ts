@@ -1,8 +1,9 @@
-import { Component, ContentChild, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+// import { ContentChild, EventEmitter, Output } from '@angular/core';
 import { WorkFlow } from '../workflow';
 import { ProjectService } from '../project.service';
 import { Task } from '../task';
-import { PertchartComponent } from '../pertchart/pertchart.component';
+// import { PertchartComponent } from '../pertchart/pertchart.component';
 // import { TaskEditorComponent } from '../task-editor';
 
 @Component({
