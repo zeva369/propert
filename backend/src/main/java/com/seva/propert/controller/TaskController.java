@@ -29,7 +29,7 @@ import com.seva.propert.service.TaskService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/tasks")
+@RequestMapping("/authenticated/tasks")
 @Validated
 public class TaskController {
 
