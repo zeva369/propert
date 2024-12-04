@@ -17,11 +17,20 @@
     margin:0;
     padding:0;
     box-sizing: border-box;
-
 }
 
 body{
     background-color: #202020;
     font-family: "Nunito", sans-serif;
     font-optical-sizing: auto;
+    width:100%;
+    min-height: 100vh;
+}
+
+app-task-editor {
+    display:flex;
+}
+
+app-pertchart {
+    display:flex;
 }

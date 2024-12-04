@@ -1,19 +1,34 @@
 <div class="container">
-    <div class="input-group">
-        <input id="taskId" type="text" [(ngModel)]="taskId" autocomplete="off" required>
-        <label for="">Id</label>
+    <div class="tasklist">
+        <div class="tasklist-title">
+            Listado de tareas
+        </div>    
+        <div class="task-list">
+
+        </div>
     </div>
-    <div class="input-group">
-        <input id="taskDescription" type="text" [(ngModel)]="taskDescription" autocomplete="off" required>
-        <label for="">Descripción</label>
+    <div class="taskdetail">
+        <div class="taskdetail-title">
+            Detalle de la tarea
+        </div>
+        <div class="task-detail">
+            <div class="input-group">
+                <input id="taskId" type="text" [(ngModel)]="taskId" autocomplete="off" required>
+                <label for="">Id</label>
+            </div>
+            <div class="input-group">
+                <input id="taskDescription" type="text" [(ngModel)]="taskDescription" autocomplete="off" required>
+                <label for="">Descripción</label>
+            </div>
+            <div class="input-group">
+                <input id="taskLength" type="number" [(ngModel)]="taskLength" autocomplete="off" step="any" required>
+                <label for="">Duración</label>
+            </div>
+            <div class="input-group">
+                <input id="taskPredecessors" type="text" [(ngModel)]="taskPredecessors" autocomplete="off" required>
+                <label for="">Predecesores</label>
+            </div>
+            <button class="save-button" (click)="addTask()">Guardar</button>
+        </div>
     </div>
-    <div class="input-group">
-        <input id="taskLength" type="number" [(ngModel)]="taskLength" autocomplete="off" step="any" required>
-        <label for="">Duración</label>
-    </div>
-    <div class="input-group">
-        <input id="taskPredecessors" type="text" [(ngModel)]="taskPredecessors" autocomplete="off" required>
-        <label for="">Predecesores</label>
-    </div>
-    <button (click)="addTask()">Guardar</button>
 </div>
