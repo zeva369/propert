@@ -33,10 +33,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User u) {
-        return userService.findByUsername(u.getUsername())
+        return userService.findById(u.getId())
                 .map(user -> {
                     if (passwordEncoder.matches(u.getPassword(), user.getPassword())) {
-                        String token = this.jwtHelper.generateToken(user.getUsername(), user.getRole());
+                        String token = this.jwtHelper.generateToken(user.getId(), user.getRole());
 
                         // Configurar cookie
                         ResponseCookie cookie = ResponseCookie.from("jwtToken", token)

@@ -7,6 +7,7 @@
         
     </div> -->
     <div class="pert">
+        <app-project-selector [projects]="projects" (currentProjectChanged)="updateCurrentProject($event)"></app-project-selector>
         <app-task-editor [tasks]="tasks" (tasksUpdated)="updateTasks($event)"></app-task-editor>
         <app-pertchart [workflow]="workflow" [error]="error"></app-pertchart>
     </div>

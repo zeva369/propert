@@ -3,23 +3,21 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpStatusCode } from '@ang
 import { Router } from '@angular/router';
 import { WorkFlow } from './workflow';
 import { catchError, Observable, throwError } from 'rxjs';
-import { UserService } from './user.service';
-import { Project } from './project';
-// import { Task } from './task';
 
-const API_RESOURCE_ENDPOINT = 'http://127.0.0.1:8080/propert-backend/api/v1/authenticated/projects';
+
+const API_RESOURCE_ENDPOINT = 'http://127.0.0.1:8080/propert-backend/api/v1/guest/projects';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ProjectService {
+export class WorkFlowService {
   
   constructor(private httpClient: HttpClient, 
               private router:Router) {
     
   }
 
-  public getProjects(userId : string): Observable<Project[]> {
+  public getWorkFlow(tasks:unknown): Observable<WorkFlow> {
     
     //!!!Notar que la variable headers es inmutable, si no re reasigna el resultado de append
     //la variable no es modificada
@@ -32,7 +30,7 @@ export class ProjectService {
     };
 
     //Lo que figura en el diamante es en realidad un cast
-    return this.httpClient.get<Project[]>(API_RESOURCE_ENDPOINT + "/userId=" + encodeURI(userId), httpOptions)
+    return this.httpClient.post<WorkFlow>(API_RESOURCE_ENDPOINT, tasks, httpOptions)
     .pipe(
        catchError((e) => {
         console.info(this.router.url)

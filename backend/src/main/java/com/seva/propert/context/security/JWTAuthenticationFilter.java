@@ -39,7 +39,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        log.debug(">>>Entra al filtro");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         // HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -56,17 +55,17 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 try {
                     // Validar el token utilizando JWTHelper
                     if (!jwtHelper.isTokenExpired(token)) {
-                        String username = jwtHelper.getUsernameFromToken(token);
+                        String userId = jwtHelper.getUsernameFromToken(token);
 
                         // Cargar usuario desde la base de datos usando UserService
-                        Optional<com.seva.propert.model.entity.User> userOptional = userService.findByUsername(username);
+                        Optional<com.seva.propert.model.entity.User> userOptional = userService.findById(userId);
 
                         if (userOptional.isPresent()) {
                             com.seva.propert.model.entity.User user = userOptional.get();
 
                             // Crear UserDetails para Spring Security
                             UserDetails userDetails = User.builder()
-                                    .username(user.getUsername())
+                                    .username(user.getId())
                                     .password("") // No necesitamos la contraseña aquí
                                     .roles(user.getRole()) // Roles del usuario
                                     .build();
@@ -91,7 +90,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        log.debug(">>>Entra a shouldNotFilter :" + request.getRequestURI());
         String path = request.getRequestURI();
             AntPathMatcher pathMatcher = new AntPathMatcher();
 

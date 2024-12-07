@@ -10,8 +10,9 @@ import { NodePosition } from "./node.position";
     styleUrls: ['./pertchart.component.css']
   })
 export class PertchartComponent implements OnChanges{
-   @Input() workflow : WorkFlow | null = null;
+   @Input() workflow : WorkFlow | undefined = undefined;
    @Input() error = '';
+
    private network : Network | null = null;
    private positions : Record<string, NodePosition> = {};
    private locked = false;
@@ -36,15 +37,7 @@ export class PertchartComponent implements OnChanges{
       console.log("Algo va mal con el workflow")
       return;
     }
-    // if (!Array.isArray(this.workflow.nodes)){
-    //   this.workflow.nodes
-    //   console.log("Algo va mal con el vector de nodes")
-    //   return;
-    // }
-    // if (!Array.isArray(this.workflow.edges)) {
-    //   console.log("Algo va mal con el vector de edges")
-    //   return;
-    // }
+
     if (this.positions != null && this.locked) console.log(this.positions);
 
     const nodes = Object.values(this.workflow?.nodes)?.map(node => ({
@@ -54,6 +47,7 @@ export class PertchartComponent implements OnChanges{
       ...((this.positions != null && this.locked && this.positions[node.id] != null) ? {x:this.positions[node.id].x} : {}),
       ...((this.positions != null && this.locked && this.positions[node.id] != null) ? {y:this.positions[node.id].y} : {})
     }));
+
     const edges = Object.values(this.workflow?.edges)?.map(edge => ({
       id: edge.id,
       label: edge.label,
@@ -61,8 +55,6 @@ export class PertchartComponent implements OnChanges{
       to: edge.to,
       color: edge.critical ? '#FF0000' : '#2D68B9',
     }));
-
-    console.log(nodes);
 
     const graphNodes = new DataSet(nodes);
     const graphEdges = new DataSet(edges);
@@ -125,11 +117,10 @@ export class PertchartComponent implements OnChanges{
     if (!this.network) return;
 
     this.positions = this.network.getPositions();
-    console.log("Posiciones guardadas: ", this.positions);
   }
 
+  //Toggle locked positions state
   public onLockButtonClick(): void{
     this.locked = !this.locked
-    console.log(this.locked)
   }
 }

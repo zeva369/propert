@@ -8,7 +8,7 @@ import { Task } from '../task';
 })
 export class TaskEditorComponent {
   @Output() tasksUpdated = new EventEmitter<Task[]>();
-  @Input() tasks : Task[] = [];
+  @Input() tasks : Task[] | undefined = undefined;
 
   taskId = '';
   taskDescription = '';

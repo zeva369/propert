@@ -15,6 +15,11 @@ public class UserServiceImpl implements UserService{
     public UserServiceImpl(UserRepository repo){
         this.repo = repo;
     }   
+    
+    @Override
+    public Optional<User> findById(String id) {
+        return repo.findById(id);
+    }
 
     @Override
     public Optional<User> findByUsername(String username) {

@@ -23,6 +23,7 @@ import com.seva.propert.exception.ElementNotFoundException;
 import com.seva.propert.exception.ProperBackendException;
 import com.seva.propert.exception.ValidationException;
 import com.seva.propert.model.entity.Project;
+import com.seva.propert.model.entity.User;
 import com.seva.propert.service.ProjectService;
 
 import jakarta.validation.Valid;
@@ -43,9 +44,14 @@ public class ProjectController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Project>> findAll(@RequestParam(value = "name-pattern", required = false) String namePattern){
-        if (namePattern == null) return ResponseEntity.ok(this.service.findAll());
-		else return ResponseEntity.ok(this.service.findByNameContaining(namePattern));
+    public ResponseEntity<List<Project>> findAll(@RequestParam(value = "name-pattern", required = false) String namePattern,
+												 @RequestParam(value = "userId", required = false) String userId){
+        if (namePattern == null && userId == null) 
+			return ResponseEntity.ok(this.service.findAll());
+		else if (namePattern != null)
+			return ResponseEntity.ok(this.service.findByNameContaining(namePattern));
+		else 
+			return ResponseEntity.ok(this.service.findByUserId(userId));										
     }
 
     @GetMapping("/{id}")

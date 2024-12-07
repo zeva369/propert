@@ -23,6 +23,7 @@ import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
 import com.seva.propert.exception.ProperBackendException;
 import com.seva.propert.exception.ValidationException;
+import com.seva.propert.model.entity.Project;
 import com.seva.propert.model.entity.Task;
 import com.seva.propert.service.TaskService;
 
@@ -44,12 +45,24 @@ public class TaskController {
 
 	@GetMapping
 	public ResponseEntity<List<Task>> findAll(
-			@RequestParam(value = "description", required = false) String description) {
-		if (description == null)
+			@RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "projectId", required = false) Long projectId) {
+		if (description == null && projectId == null)
 			return ResponseEntity.ok(this.service.findAll());
-		else
+		else if (projectId != null) {
+			return ResponseEntity.ok(this.service.findByProjectId(projectId));
+		} else 
 			return ResponseEntity.ok(this.service.findByDescriptionContaining(description));
 	}
+
+	// @GetMapping
+	// public ResponseEntity<List<Task>> findByProject(
+	// 		@RequestParam(value = "description", required = false) String description) {
+	// 	if (description == null)
+	// 		return ResponseEntity.ok(this.service.findAll());
+	// 	else
+	// 		return ResponseEntity.ok(this.service.findByDescriptionContaining(description));
+	// }
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Task> findById(@PathVariable String id) {

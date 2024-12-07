@@ -8,6 +8,7 @@ import com.seva.propert.model.entity.Task;
 
 public interface TaskService extends EntityService<Task, String>{
     public List<Task> findByDescriptionContaining(String pattern);
+    public List<Task> findByProjectId(Long projectId);
     public Task create(Task taskIn) throws DuplicatedElementException;
     public void deleteById(String id) throws ElementNotFoundException;
 }

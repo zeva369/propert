@@ -11,6 +11,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { PertchartComponent } from './pertchart/pertchart.component';
 import { TaskEditorComponent } from './task-editor/task-editor.component';
 import { FormsModule } from '@angular/forms';
+import { EditorComponent } from './editor/editor.component';
+import { ProjectSelectorComponent } from './project-selector/project-selector.component';
+
 
 @NgModule({
   declarations: [
@@ -19,7 +22,9 @@ import { FormsModule } from '@angular/forms';
     HomeComponent,
     ExamplesComponent,
     PertchartComponent,
-    TaskEditorComponent
+    TaskEditorComponent,
+    EditorComponent,
+    ProjectSelectorComponent
   ],
   imports: [
     BrowserModule,
