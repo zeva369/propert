@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { Task } from '../task';
 
 @Component({
@@ -6,9 +6,9 @@ import { Task } from '../task';
   templateUrl: './task-editor.component.html',
   styleUrls: ['./task-editor.component.css']
 })
-export class TaskEditorComponent {
+export class TaskEditorComponent implements OnChanges{
   @Output() tasksUpdated = new EventEmitter<Task[]>();
-  @Input() tasks : Task[] | undefined = undefined;
+  @Input() tasks : Task[] = [];
 
   taskId = '';
   taskDescription = '';
@@ -31,6 +31,12 @@ export class TaskEditorComponent {
     this.taskPredecessors = value; 
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['tasks']) {
+      this.updateTasks();
+    }
+  }
+  
   updateTasks(): void {
     this.tasksUpdated.emit(this.tasks);
   }
@@ -61,7 +67,7 @@ export class TaskEditorComponent {
 
   removeTask(taskId: string): void {
     const task = this.tasks.filter( t => t.id == taskId)[0];
-    const index = this.tasks.indexOf(task, 0);
+    const index =  this.tasks.indexOf(task, 0);
 
     if (index > -1) {
       this.tasks.splice(index, 1);
@@ -70,10 +76,13 @@ export class TaskEditorComponent {
   }
 
   editTask(task: Task): void {
-    const index = this.tasks.indexOf(task, 0);
+    if (this.tasks) {
+      const index = this.tasks.indexOf(task, 0);
 
-    if (index > -1) {
-      this.tasks[index] = task;
+      if (index > -1 && 
+          this.tasks.length >= index) {
+        this.tasks[index] = task;
+      }
     }
     this.updateTasks(); // Emitir los cambios después de editar una tarea
   }

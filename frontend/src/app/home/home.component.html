@@ -3,12 +3,4 @@
         <h1>Welcome</h1>
         <h3>Start tracking your projects easily in just 3 steps...</h3>
     </div>
-    <!-- <div class="card">
-        
-    </div> -->
-    <div class="pert">
-        <app-project-selector [projects]="projects" (currentProjectChanged)="updateCurrentProject($event)"></app-project-selector>
-        <app-task-editor [tasks]="tasks" (tasksUpdated)="updateTasks($event)"></app-task-editor>
-        <app-pertchart [workflow]="workflow" [error]="error"></app-pertchart>
-    </div>
 </div>

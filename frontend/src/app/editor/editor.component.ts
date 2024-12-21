@@ -154,20 +154,19 @@ export class EditorComponent implements OnInit {
     }   
   }
 
-  // Consumo el evento tasksUpdated del componente TaskEditor
+  //Consumo el evento currentProjectChanged del componente ProjectSelector
+  updateCurrentProject(currentProject: Project): void {
+    this.currentProject = currentProject;
+    this.updateTasks(this.currentProject.tasks);
+  }
+
+    // Consumo el evento tasksUpdated del componente TaskEditor
   // actualizando el workflow cuando las tareas cambian
   updateTasks(tasks: Task[]): void {
     this.tasks = tasks;
     this.updateWorkflow();
   }
-
-  //Consumo el evento currentProjectChanged del componente ProjectSelector
-  updateCurrentProject(currentProject: Project): void {
-    this.currentProject = currentProject;
-    this.tasks = this.currentProject.tasks;
-    this.updateWorkflow();
-  }
-
+  
   updateWorkflow() {
     this.workflowService.getWorkFlow(this.tasks)
     .subscribe({ 

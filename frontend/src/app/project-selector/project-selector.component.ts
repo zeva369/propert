@@ -9,4 +9,6 @@ import { Project } from '../project';
 export class ProjectSelectorComponent {
   @Output() currentProjectChanged = new EventEmitter<Project>();
   @Input() projects : Project[] = [];
+
+  
 }

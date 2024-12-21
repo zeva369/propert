@@ -1,1 +1,7 @@
-<p>project works!</p>
+<div class="editor-content">
+    <div class="project-container">
+        <app-project-selector [projects]="projects" (currentProjectChanged)="updateCurrentProject($event)"></app-project-selector>
+        <app-task-editor [tasks]="tasks" (tasksUpdated)="updateTasks($event)"></app-task-editor>
+        <app-pertchart [workflow]="workflow" [error]="error"></app-pertchart>
+    </div>
+</div>
