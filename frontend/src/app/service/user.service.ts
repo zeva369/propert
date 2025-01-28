@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { User } from './user';
+import { User } from '../entity/user';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private storageKey = 'currentUser';
+  private readonly storageKey = 'currentUser';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   setUser(user: User): void {
     sessionStorage.setItem(this.storageKey, JSON.stringify(user));
@@ -17,7 +17,7 @@ export class UserService {
 
   getUser(): User | null {
     const user = sessionStorage.getItem(this.storageKey);
-    return user ? JSON.parse(user) : null;
+    return user ? JSON.parse(user) : new User("guest", "Guest user", true);
   }
 
   isGuest(): boolean {

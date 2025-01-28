@@ -2,82 +2,136 @@
     /* flex-grow: 1;
     flex-shrink: 1;
     min-width: 450px; */
-    width:100%;
-    display:flex;
+    width: 100%;
+    display: flex;
     flex-direction: column;
-	/* display: grid;
+    /* display: grid;
     grid-template-columns: 1fr;
     grid-template-areas: "tasklist-title",
                          "tasklist",
                          "taskdetail-title",
                          "taskdetail"; */
-	/* min-height: 100vh; */
-	justify-content: start;
-	/* align-items: flex-start; */
-	background: #0d0d0d;
+    /* min-height: 100vh; */
+    justify-content: start;
+    /* align-items: flex-start; */
+    background: #0d0d0d;
     outline: none;
     border-radius: 8px;
     padding: 10px;
-    gap:10px;
+    gap: 10px;
 }
 
 .tasklist-title {
     /* grid-area: "tasklist-title"; */
-    color:white;
+    color: white;
 }
 
-/* .tasklist {
- 
-} */
+.tasklist {
+    padding: 5px 0 5px 0;
+    overflow: hidden;
+}
 
 .task-list {
     /* grid-area: "tasklist"; */
-    border:1px solid var(--gray-border);
+    border: 1px solid var(--background);
     border-radius: 8px;
-    width:100%;
+    width: 100%;
     height: 200px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.task-list li {
+    list-style-type: none;
+    padding: 5px 0 5px 10px;
+    border-bottom: 1px solid var(--gray-border);
+    color: white;
+    background-color: #1a1a1a;
+}
+
+.task-element {
+    padding-left: 5px;
+    padding-right: 5px;
+    color: #b019d6;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap:5px;
+    cursor:pointer;
+}
+
+.selected {
+    background-color: var(--task-selected);
+    color: white;
+}
+
+.task-list::-webkit-scrollbar {
+    width: 12px;
+    /* width of the entire scrollbar */
+}
+
+.task-list::-webkit-scrollbar-track {
+    background: var(--secondary-color);
+    /* color of the tracking area */
+}
+
+.task-list::-webkit-scrollbar-thumb {
+    background-color: var(--background);
+    /* color of the scroll thumb */
+    border-radius: 20px;
+    /* roundness of the scroll thumb */
+    border: 3px solid var(--secondary-color);
+    /* creates padding around scroll thumb */
 }
 
 .taskdetail-title {
     /* grid-area: "taskdetail-title"; */
-    color:white;
+    color: white;
 }
 
 .taskdetail {
-    width:100%;
-    height:auto;
+    width: 100%;
+    height: auto;
 }
 
 .task-detail {
-    width:100%;
-    height:auto;
+    width: 100%;
+    height: auto;
     /* grid-area: "taskdetail"; */
-	display: flex;
+    display: flex;
     flex-direction: column;
     justify-content: center;
-	align-items: flex-start;
+    align-items: flex-start;
     /* padding-left:10px; */
 }
 
-.save-button {
+.action-button {
     margin-top: 5px;
-    width:80px;
-    height:35px;
-    color:rgb(148, 148, 148);
+    width: 80px;
+    height: 35px;
+    color: rgb(148, 148, 148);
     border: 1px solid white;
     border-radius: 6px;
     background-color: #252525;
 }
 
-.save-button:hover {
+.action-button:hover {
     cursor: pointer;
-    color:white;
+    color: white;
     background-color: #525151;
 }
 
+.button-bar {
+    width: 200px;
+    display:flex;
+    justify-content:space-between;
+}
+
 .input-group {
+    width: 200px;
     margin: 5px 0;
-    position:relative;
+    position: relative;
 }
 
 .input-group label {
@@ -87,7 +141,7 @@
     left: 15px;
     font-size: 16px;
     pointer-events: none;
-    color: rgb(218,223,223);
+    color: rgb(218, 223, 223);
     padding: 0 5px;
     transition: .5s;
 }
@@ -95,10 +149,10 @@
 .input-group input {
     width: 200px;
     height: 40px;
-    color:#b019d6;
+    color: #b019d6;
     font-size: 16px;
     padding: 0 15px;
-    border:1.2px solid rgb(220,223,223);
+    border: 1.2px solid rgb(220, 223, 223);
     background: transparent;
     outline: none;
     border-radius: 5px;
@@ -111,10 +165,10 @@
     font-size: 14px;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* .custom-input:-webkit-autofill,
@@ -124,8 +178,7 @@ input[type=number]::-webkit-outer-spin-button {
   -webkit-box-shadow: 0 0 0px 1000px white inset !important;
 } */
 
-input[type=number] { 
+input[type=number] {
     appearance: textfield;
-    -moz-appearance:textfield; 
+    -moz-appearance: textfield;
 }
-

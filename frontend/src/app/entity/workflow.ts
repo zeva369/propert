@@ -3,7 +3,7 @@
 import { Node } from './node';
 import { Edge } from './edge';
 
-export class WorkFlow { 
+export class Workflow { 
     public nodes: Record<number, Node> = {};
     public edges: Record<string, Edge> = {};
     

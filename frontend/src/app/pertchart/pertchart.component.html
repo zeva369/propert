@@ -1,12 +1,13 @@
 
 <div class="vis-container">
 
+    <button class="lock-button" (click)="onLockButtonClick()">
+        <img src="assets/images/pin.png" alt="" width="40px" height="40px"/>
+    </button> 
     <!-- El div que actúa como contenedor del grafo -->
     <div *ngIf="error === ''; else errorTemplate" id="network" class="chart" >
         <!-- Contenido del gráfico -->
-        <button class="lock-button" (click)="onLockButtonClick()">
-            <img src="assets/images/pin.png" alt="" width="40px" height="40px"/>
-        </button>        
+               
     </div>
       
     <ng-template #errorTemplate>

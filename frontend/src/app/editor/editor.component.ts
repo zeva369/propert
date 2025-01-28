@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Task } from '../task';
-import { UserService } from '../user.service';
-import { ProjectService } from '../project.service';
-import { WorkFlowService } from '../workflow.service';
-import { WorkFlow } from '../workflow';
-import { Project } from '../project';
-import { User } from '../user';
+import { Task } from '../entity/task';
+import { UserService } from '../service/user.service';
+import { ProjectService } from '../service/project.service';
+import { WorkflowService } from '../service/workflow.service';
+import { Workflow } from '../entity/workflow';
+import { Project } from '../entity/project';
+import { User } from '../entity/user';
 
 @Component({
   selector: 'app-editor',
@@ -14,13 +14,14 @@ import { User } from '../user';
 })
 export class EditorComponent implements OnInit {
   //@Output() tasksUpdated = new EventEmitter<WorkFlow | null>();
-  public workflow: WorkFlow | undefined = undefined;
+  public workflow: Workflow | undefined = undefined;
   public currentProject : Project | undefined = undefined;
   public error = '';
 
   currentUser: User | null = null;
   tasks: Task[] = [];
   projects: Project[] = [];
+  selectedTask: Task | null = null;
 
   // private tasks = [ 
   //   { id: "A", 
@@ -131,9 +132,9 @@ export class EditorComponent implements OnInit {
   // ];
 
 
-  constructor(private userService: UserService,
-              private projectService: ProjectService,
-              private workflowService: WorkFlowService) { }
+  constructor(private readonly userService: UserService,
+              private readonly projectService: ProjectService,
+              private readonly workflowService: WorkflowService) { }
 
   ngOnInit(): void {
     //Obtengo el usuario
@@ -151,7 +152,7 @@ export class EditorComponent implements OnInit {
           this.projects = []
         }
       })
-    }   
+    } else console.log("No user logged in");  
   }
 
   //Consumo el evento currentProjectChanged del componente ProjectSelector
@@ -170,13 +171,17 @@ export class EditorComponent implements OnInit {
   updateWorkflow() {
     this.workflowService.getWorkFlow(this.tasks)
     .subscribe({ 
-      next : pWorkflow => this.workflow = new WorkFlow(pWorkflow.nodes, pWorkflow.edges),
+      next : pWorkflow => this.workflow = new Workflow(pWorkflow.nodes, pWorkflow.edges),
       error : (e) => { 
         console.log(e.message)
         this.error = e.message;
         this.workflow = undefined
       }
     })
+  }
+
+  onTaskSelected(task: Task): void {
+    this.selectedTask = { ...task };
   }
 
 }

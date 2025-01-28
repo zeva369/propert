@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Project } from '../project';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Project } from '../entity/project';
 
 @Component({
   selector: 'app-project-selector',
@@ -8,7 +8,16 @@ import { Project } from '../project';
 })
 export class ProjectSelectorComponent {
   @Output() currentProjectChanged = new EventEmitter<Project>();
-  @Input() projects : Project[] = [];
+  @Input() projects: Project[] = [];
 
-  
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['projects']) {
+      this.updateProjectList();
+    }
+  }
+
+  public updateProjectList() {
+    
+  }
+
 }

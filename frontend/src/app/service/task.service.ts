@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { UserService } from './user.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { Task } from './task';
+import { Task } from '../entity/task';
 
 const API_RESOURCE_ENDPOINT = 'http://127.0.0.1:8080/propert-backend/api/v1/authenticated/tasks'
 

@@ -10,6 +10,13 @@
     height: 550px;   
     /*height: 100vh; */
     /* border: 1px solid #474444;  */
+    position:relative;
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center;
+    border-radius: 8px;
+    background: #0d0d0d;
+    border: 3px solid rgb(15, 15, 15); 
   }
 
   /* .vis-container .lock-button {
@@ -26,12 +33,11 @@
 .chart {
     /* width: 100%; height: 70vh;  */
     /* background: #EEE;  */
-    border: 1px solid black; 
-    background-color: rgb(255, 255, 255);
+    background-color: #1a1a1a;
     border-radius: 8px;
-    border-color: rgb(105, 103, 103);
+    /* border-color: rgb(105, 103, 103); */
     width: 100%;
-    height: 100%;
+    height:100%;
     align-items: end;
     position:relative;   /* Esto es para que el Pin se quede siempre relativo al grafico */
     /* display: grid;
@@ -51,12 +57,14 @@
   gap:30px;
   width:100%;
   color:#69211e;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .errorMessage {
   width:100%;
-  font-size:1.5em;
-  text-wrap: balance;
+  font-size:1.1em;
+  text-wrap: break-word;
   text-align: center;
 }
 
