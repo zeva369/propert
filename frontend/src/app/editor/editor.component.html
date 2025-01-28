@@ -1,0 +1,9 @@
+<div class="editor-content">
+    <div class="project-container">
+        <div *ngIf="currentUser?.id !== 'guest'">
+            <app-project-selector [projects]="projects" (currentProjectChanged)="updateCurrentProject($event)" ></app-project-selector>
+        </div>
+        <app-task-editor [tasks]="tasks" (tasksUpdated)="updateTasks($event)" (taskSelected)="onTaskSelected($event)"></app-task-editor>
+        <app-pertchart [workflow]="workflow" [error]="error" [selected]="selectedTask"></app-pertchart>
+    </div>
+</div>

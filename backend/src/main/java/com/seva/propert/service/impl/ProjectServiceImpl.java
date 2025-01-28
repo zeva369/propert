@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
 import com.seva.propert.model.entity.Project;
+import com.seva.propert.model.entity.User;
 import com.seva.propert.repository.ProjectRepository;
 import com.seva.propert.service.ProjectService;
 
@@ -28,6 +29,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Optional<Project> findById(Long id) throws IllegalArgumentException {
         return repo.findById(id);
+    }
+    
+    @Override
+    public List<Project> findByUserId(String userId) {
+        return repo.findByUserId(userId);
     }
 
     @Override

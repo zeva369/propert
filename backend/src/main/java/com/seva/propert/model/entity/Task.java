@@ -23,17 +23,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Entity
-public class Task implements Clonable<Task>{
+public class Task implements Clonable<Task> {  //, TaskEventListener{
     @Id
     private String id;
     private String description;
     private Double length;
+
+    // @Transient
+    // @JsonIgnore
+    // private List<Task> depListeners = new ArrayList<>();
+
+    // @Transient
+    // @JsonIgnore
+    // private List<Task> predListeners = new ArrayList<>();
 
     //@JsonBackReference
     @ManyToMany
@@ -81,13 +90,97 @@ public class Task implements Clonable<Task>{
         newTask.project = this.project;
         newTask.predecessors =  this.predecessors.stream()
                                   .map(Task::clone)
-                                  .collect(Collectors.toList());
+                                  .collect(Collectors.toCollection(ArrayList::new));
         newTask.dependencies = this.dependencies.stream()
                                   .map(Task::clone)
-                                  .collect(Collectors.toList());
+                                  .collect(Collectors.toCollection(ArrayList::new));
         newTask.isDummy = this.isDummy;
         return newTask;
     }
 
+    public static List<Task> cloneCollection(List<Task> source) {
+        List<Task> result = new ArrayList<>();
+        for (Task t : source) {
+            result.add(t.clone());
+        }
+        return result;
+    }
     
+    // public void replacePredecessor(Task oldTask, Task newTask) {
+    //     // Iterator<Task> predecessorsIterator = getPredecessors().iterator();
+    //     // while (predecessorsIterator.hasNext()) {
+    //     //     Task predecessor = predecessorsIterator.next();
+    //     //     if (predecessor.getId().equalsIgnoreCase(oldTask.getId())){
+    //     //         predecessorsIterator.remove();
+    //     //         break;
+    //     //     }
+    //     // } 
+    //     this.predecessors = this.predecessors.stream()
+    //                         .filter(t -> t != oldTask)
+    //                         .collect(Collectors.toList());
+    //                         //.remove(oldTask);                   
+    //     this.predecessors.add(newTask);
+    // }
+
+    // private void sendEvent(Task suscriber, TASK_EVENT event) {
+    //     switch(event){
+    //         case DEPENDENCY_REMOVED -> {
+    //             suscriber.onDependencyRemoved(this);
+    //         }
+    //         case PREDECESSOR_REMOVED -> {
+    //             suscriber.onPredecessorRemoved(this);
+    //         }
+    //     }
+    // }
+
+    // private void broadcastEvent(List<Task> listeners, TASK_EVENT event) {
+    //     for(Task listener : listeners) sendEvent(listener, event);
+    // }
+
+    // public void addDependency(Task dep){
+    //     this.dependencies.add(dep);
+    //     //Ahora la tarea dependiente recibirá mensajes de esta tarea cuando 
+    //     //ocurra algún evento importante
+    //     this.depListeners.add(dep);
+    // }
+
+    // public void removeDependency(Task dep){
+    //     this.dependencies.remove(dep);
+    //     //Ahora la tarea dependiente recibirá mensajes de esta tarea cuando 
+    //     //ocurra algún evento importante
+    //     sendEvent(dep,TASK_EVENT.DEPENDENCY_REMOVED);
+    //     //Luego elimino el listener
+    //     this.depListeners.remove(dep);
+    // }
+
+    // public void addPredecessor(Task pred){
+    //     this.predecessors.add(pred);
+    //     //Ahora la tarea dependiente recibirá mensajes de esta tarea cuando 
+    //     //ocurra algún evento importante
+    //     this.predListeners.add(pred);
+    // }
+
+    // public void removePredecessor(Task pred){
+    //     this.predecessors.remove(pred);
+    //     //Ahora la tarea dependiente recibirá mensajes de esta tarea cuando 
+    //     //ocurra algún evento importante
+    //     sendEvent(pred,TASK_EVENT.PREDECESSOR_REMOVED);
+    //     //Luego elimino el listener
+    //     this.predListeners.remove(pred);
+    // }
+
+    // @Override
+    // public void onDependencyRemoved(Task dependency) {
+    //     //In this case i don't use removePredecessor to avoid generating a loop
+    //     this.predecessors.remove(dependency); 
+    //     this.predListeners.remove(dependency);    
+    // }
+
+    // @Override
+    // public void onPredecessorRemoved(Task predecessor) {
+    //     //In this case i don't use removeDependency to avoid generating a loop
+    //     this.dependencies.remove(predecessor); 
+    //     this.depListeners.remove(predecessor);        
+    // }
+
 }

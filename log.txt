@@ -1,0 +1,148 @@
+ task: A
+  Se agrega edge A
+  Se agrega node 3
+   3 -> A
+  Se agrega edge E
+   E -> 3
+  Se conecta el edge A al nodo final
+
+task: C
+ Se agrega edge C
+ Se conecta el edge C al nodo inicial
+ Se conecta el edge C al nodo final
+
+task: D
+ Se agrega edge D
+ Se conecta el edge D al nodo inicial
+ D -> null
+
+task: E
+ null -> E
+ E -> Node(id=3, label=3, previous={}, next={}, start=0.0, end=0.0, critical=false)
+
+-----------------------------------------------------------------------------------------
+
+task: A
+ Se agrega edge A
+ Se agrega node 3
+ 3 -> A
+ Se agrega edge E
+ E -> 3
+ Se conecta el edge A al nodo final
+
+task: C
+ Se agrega edge C
+ Se conecta el edge C al nodo inicial
+ Se conecta el edge C al nodo final
+
+task: D
+ Se agrega edge D
+ Se conecta el edge D al nodo inicial
+ 
+
+task: E
+
+ E -> 3
+
+-------------------------------------------------------------------------------------
+
+task: A
+ Se agrega edge A
+ Se agrega node 3
+ 3 -> A
+ Se agrega edge E
+ E -> 3
+ Se conecta el edge A al nodo final
+
+task: C
+ Se agrega edge C
+ Se conecta el edge C al nodo inicial
+ Se conecta el edge C al nodo final
+
+task: D
+ Se agrega edge D
+ Se conecta el edge D al nodo inicial
+
+task: E
+ E -> 3
+
+-------------------------------------------------------------------------------------------
+
+2024-11-05T11:17:05.380+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : task: A
+2024-11-05T11:17:05.383+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se agrega edge A
+2024-11-05T11:17:05.384+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se agrega node 3
+2024-11-05T11:17:05.385+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : 3 -> A
+2024-11-05T11:17:05.387+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se conecta el edge A al nodo final
+
+2024-11-05T11:17:05.387+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : task: C
+2024-11-05T11:17:05.388+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se agrega edge C
+2024-11-05T11:17:05.389+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se conecta el edge C al nodo inicial
+2024-11-05T11:17:05.389+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se conecta el edge C al nodo final
+
+2024-11-05T11:17:05.390+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : task: D
+2024-11-05T11:17:05.390+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se agrega edge D
+2024-11-05T11:17:05.391+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se conecta el edge D al nodo inicial
+2024-11-05T11:17:05.392+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se agrega node 4
+2024-11-05T11:17:05.393+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : D -> 4
+
+2024-11-05T11:17:05.394+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : task: E
+2024-11-05T11:17:05.394+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : Se agrega edge E
+2024-11-05T11:17:05.395+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : 4 -> E
+2024-11-05T11:17:05.396+01:00  INFO 22460 --- [Proper Backend] [nio-8080-exec-4] com.seva.propert.model.pert.Workflow     : E -> 3
+
+nodes:
+ {
+  "1":{"id":1,"label":"I","start":0.0,"end":0.0,"critical":true,"initialNode":true,"finalNode":false},
+  "2":{"id":2,"label":"F","start":14.0,"end":14.0,"critical":true,"initialNode":false,"finalNode":true},
+  "3":{"id":3,"label":"3","start":12.5,"end":12.5,"critical":true,"initialNode":false,"finalNode":false},
+  "4":{"id":4,"label":"4","start":10.0,"end":10.0,"critical":true,"initialNode":false,"finalNode":false}
+}
+
+
+edges:
+{
+ "A":{"id":"A","label":"A,1.5","critical":true},
+ "C":{"id":"C","label":"C,0.5","critical":false},
+ "D":{"id":"D","label":"D,10.0","critical":true},
+ "E":{"id":"E","label":"E,2.5","critical":true}
+}
+
+: {"nodes":{"1":{"id":1,"label":"I","start":0.0,"end":0.0,"critical":true,"initialNode":true,"finalNode":false},
+"2":{"id":2,"label":"F","start":14.0,"end":14.0,"critical":true,"initialNode":false,"finalNode":true},
+"3":{"id":3,"label":"3","start":12.5,"end":12.5,"critical":true,"initialNode":false,"finalNode":false},
+"4":{"id":4,"label":"4","start":10.0,"end":10.0,"critical":true,"initialNode":false,"finalNode":false}},
+
+"edges":{"A":{"id":"A","label":"A,1.5","critical":true},"C":{"id":"C","label":"C,0.5","critical":false},
+"D":{"id":"D","label":"D,10.0","critical":true},"E":{"id":"E","label":"E,2.5","critical":true}}}
+
+
+
+------------------------------------------------------------------------------------------------------
+{"nodes":
+ {
+  "1":{"id":1,"label":"I","previous":{},"next":{"A":{"id":"A","label":"A,2.0","critical":false},
+                                                "C":{"id":"C","label":"C,3.0","critical":false},
+                                                "H":{"id":"H","label":"H,6.0","critical":false}},"start":0.0,"end":0.0,"critical":false,"initialNode":true,"finalNode":false},
+  "2":{"id":2,"label":"F","previous":{"E":{"id":"E","label":"E,1.0","critical":false},
+                                      "G":{"id":"G","label":"G,2.0","critical":false},
+                                      "H":{"id":"H","label":"H,6.0","critical":false}},"next":{},"start":0.0,"end":0.0,"critical":false,"initialNode":false,"finalNode":true},
+  "3":{"id":3,"label":"3","previous":{"A":{"id":"A","label":"A,2.0","critical":false},
+                                      "C":{"id":"C","label":"C,3.0","critical":false},
+                                      "F":{"id":"F","label":"F,12.0","critical":false}},"next":{"B":{"id":"B","label":"B,4.0","critical":false},
+                                                                                                "D":{"id":"D","label":"D,10.0","critical":false},
+                                                                                                "E":{"id":"E","label":"E,1.0","critical":false}},"start":0.0,"end":0.0,"critical":false,"initialNode":false,"finalNode":false},
+  "4":{"id":4,"label":"4","previous":{"B":{"id":"B","label":"B,4.0","critical":false}},"next":{"F":{"id":"F","label":"F,12.0","critical":false}},"start":0.0,"end":0.0,"critical":false,"initialNode":false,"finalNode":false},
+  "5":{"id":5,"label":"5","previous":{"D":{"id":"D","label":"D,10.0","critical":false}},"next":{"G":{"id":"G","label":"G,2.0","critical":false}},"start":0.0,"end":0.0,"critical":false,"initialNode":false,"finalNode":false}
+ },
+ "edges":
+ {
+  "A":{"id":"A","label":"A,2.0","critical":false},
+  "B":{"id":"B","label":"B,4.0","critical":false},
+  "C":{"id":"C","label":"C,3.0","critical":false},
+  "D":{"id":"D","label":"D,10.0","critical":false},
+  "E":{"id":"E","label":"E,1.0","critical":false},
+  "F":{"id":"F","label":"F,12.0","critical":false},
+  "G":{"id":"G","label":"G,2.0","critical":false},
+  "H":{"id":"H","label":"H,6.0","critical":false}
+ }
+}

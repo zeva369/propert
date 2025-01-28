@@ -3,6 +3,7 @@ package com.seva.propert.controller;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -22,15 +23,19 @@ import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
 import com.seva.propert.exception.ProperBackendException;
 import com.seva.propert.exception.ValidationException;
+import com.seva.propert.model.entity.Project;
 import com.seva.propert.model.entity.Task;
 import com.seva.propert.service.TaskService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/tasks")
+@RequestMapping("/authenticated/tasks")
 @Validated
 public class TaskController {
+
+	@Autowired
+    private ErrorMessages errorMessages;
 
 	private final TaskService service;
 
@@ -40,18 +45,30 @@ public class TaskController {
 
 	@GetMapping
 	public ResponseEntity<List<Task>> findAll(
-			@RequestParam(value = "description", required = false) String description) {
-		if (description == null)
+			@RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "projectId", required = false) Long projectId) {
+		if (description == null && projectId == null)
 			return ResponseEntity.ok(this.service.findAll());
-		else
+		else if (projectId != null) {
+			return ResponseEntity.ok(this.service.findByProjectId(projectId));
+		} else 
 			return ResponseEntity.ok(this.service.findByDescriptionContaining(description));
 	}
+
+	// @GetMapping
+	// public ResponseEntity<List<Task>> findByProject(
+	// 		@RequestParam(value = "description", required = false) String description) {
+	// 	if (description == null)
+	// 		return ResponseEntity.ok(this.service.findAll());
+	// 	else
+	// 		return ResponseEntity.ok(this.service.findByDescriptionContaining(description));
+	// }
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Task> findById(@PathVariable String id) {
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 		return ResponseEntity.ok(foundTask);
 	}
 
@@ -60,7 +77,7 @@ public class TaskController {
 	public ResponseEntity<List<Task>> findPredecessors(@PathVariable String id) {
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
 		return ResponseEntity.ok(foundTask.getPredecessors());
 	}
@@ -71,11 +88,11 @@ public class TaskController {
 		//Only check that both tasks exists
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
 		Task predTask = this.service.findById(taskIn.getId())
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
-						ErrorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
 		foundTask.getPredecessors().add(predTask);
 		this.service.save(foundTask);
@@ -93,7 +110,7 @@ public class TaskController {
 		try {
 			createdTask = this.service.create(taskIn);
 		} catch (DuplicatedElementException e) {
-			throw new ProperBackendException(HttpStatus.CONFLICT, ErrorMessages.TASK_CREATE_DUPLICATED_ELEMENT);
+			throw new ProperBackendException(HttpStatus.CONFLICT, errorMessages.TASK_CREATE_DUPLICATED_ELEMENT);
 		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
 	}
@@ -108,7 +125,7 @@ public class TaskController {
 
 		Task foundTask = this.service.findById(id)
 				.orElseThrow(
-						() -> new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.PROJECT_UPDATE_NOT_FOUND));
+						() -> new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.PROJECT_UPDATE_NOT_FOUND));
 
 		BeanUtils.copyProperties(taskDetails, foundTask);
 		Task savedTask = this.service.save(foundTask);
@@ -122,10 +139,10 @@ public class TaskController {
 		try {
 			this.service.deleteById(id);
 		} catch (ElementNotFoundException ex) {
-			throw new ProperBackendException(HttpStatus.NOT_FOUND, ErrorMessages.TASK_DELETE_BY_ID_NOT_FOUND);
+			throw new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.TASK_DELETE_BY_ID_NOT_FOUND);
 		} catch (Exception ex) {
 			throw new ProperBackendException(HttpStatus.INTERNAL_SERVER_ERROR,
-					ErrorMessages.PROJECT_DELETE_CANT_DELETE);
+					errorMessages.PROJECT_DELETE_CANT_DELETE);
 		}
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}

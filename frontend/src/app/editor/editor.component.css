@@ -1,0 +1,33 @@
+.editor-content{
+    padding:10px;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    gap: 20px;
+    width:100%;
+}
+
+.project-container {
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap:wrap;
+    gap: 10px;
+}
+
+app-task-editor {
+    flex-shrink: 1;
+    flex-grow: 1;
+    min-width: 150px;
+    width: 350px;
+    display:flex;
+}
+
+app-pertchart {
+    /* flex-grow: 1 1 450px; */
+    flex-shrink: 2;
+    flex-grow: 1;
+    min-width:150px;
+    width: 500px;
+    display:flex;
+}

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
+import com.seva.propert.model.entity.Project;
 import com.seva.propert.model.entity.Task;
 import com.seva.propert.repository.TaskRepository;
 import com.seva.propert.service.TaskService;
@@ -33,6 +34,12 @@ public class TaskServiceImpl implements TaskService{
     @Override
     public List<Task> findByDescriptionContaining(String pattern) {
         return repo.findByDescriptionContaining(pattern);
+    }
+
+    
+    @Override
+    public List<Task> findByProjectId(Long projectId) {
+        return repo.findByProjectId(projectId);
     }
 
     @Override
@@ -66,6 +73,7 @@ public class TaskServiceImpl implements TaskService{
 			throw new ElementNotFoundException();
 		delete(foundTask.get());
     }
+
     
 
 }

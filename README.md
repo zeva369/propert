@@ -11,17 +11,6 @@ but without compromising the main goal of ProPert which is to stay Easy, Bounded
 
 ### Dependencies
 
-* NodeJs
-
-### Installation:
-
-```
-git clone https://github.com/zeva369/propert.git
-```
-
-At this point you will find in your local repo two folders (backend & frontend)
-The backend is developed in Java with Spring Boot Framework, the FrontEnd is an Angular app.
-
 ## Help
 
 ## Authors 

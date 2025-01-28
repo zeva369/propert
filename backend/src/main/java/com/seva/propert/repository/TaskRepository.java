@@ -10,4 +10,5 @@ import com.seva.propert.model.entity.Task;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, String>{
     public List<Task> findByDescriptionContaining(String pattern);
+    public List<Task> findByProjectId(Long projectId);
 }

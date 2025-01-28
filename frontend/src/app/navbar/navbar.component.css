@@ -7,13 +7,23 @@ ol, ul{
     list-style: none;
 }
 
+ /* nav {
+    position: sticky;
+    top:0;
+}  */
+
 .navbar{
-    height: 100%;
+    position: sticky;
+    top:0;
+    height: var(--header-height);
+    background-color: var(--background);     
+    border-bottom: 1px solid var(--gray-border);
+    /* height: 100%; */
     display:flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    position: relative;
+    /* position: relative; */
     padding: 0 var(--padding-left-right);
     z-index: 2;
 }

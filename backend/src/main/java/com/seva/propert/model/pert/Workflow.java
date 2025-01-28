@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.seva.propert.model.entity.Project;
 import com.seva.propert.model.entity.Task;
 
 import lombok.Data;
@@ -20,9 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 public class Workflow {
-    @JsonIgnore
-    private Project project = null;
-
     @JsonIgnore
     private Map<String, Task> tasks = null; // Complete clone of tasks
     private Map<Long, Node> nodes = new HashMap<>();
@@ -37,8 +32,7 @@ public class Workflow {
     @JsonIgnore
     private Node lastNode = null;
 
-    public Workflow(Project project, List<Task> tasks) {
-        this.project = project;
+    public Workflow(List<Task> tasks) {
         this.tasks = tasks.stream()
                 .collect(Collectors.toMap(Task::getId, task -> task.clone()));
         firstNode = new Node(nodeCounter++, "I");
@@ -54,9 +48,9 @@ public class Workflow {
             createDummyTasks();
             nestTasks();
             nestNodes();
-            calcNodesTimes();
-            calcTasksTimes();
-            calcCriticPath();
+            // calcNodesTimes();
+            // calcTasksTimes();
+            // calcCriticPath();
         }
     }
 
@@ -117,63 +111,145 @@ public class Workflow {
         });
     }
 
+    public String listAsString(List<Task> tasks) {
+        return tasks.stream()
+                .map(Task::getId) // Extrae el id de cada Task
+                .sorted()          // Ordena los ids alfabéticamente
+                .collect(Collectors.joining(", ")); // Une los ids en una cadena separada por comas
+    }
+
+    private String getDepWithDifferentPredecessors(List<Task> dependencies){
+        // Map<String, Task> dependencies = new HashMap<>();
+        String predecessors = "";
+        for(Task t : dependencies){
+            log.debug("\t\t" + t.getId() + " -> " + listAsString(t.getPredecessors()));
+            String taskDep = listAsString(t.getPredecessors());
+
+            if (predecessors.length() == 0) {
+                predecessors = taskDep;
+            } else if (!predecessors.equalsIgnoreCase(taskDep)) return t.getId();
+        }
+        return null;
+    }
+
+    // private synchronized Boolean depWithSamePredecessors(List<Task> dependencies){
+    //     // Map<String, Task> dependencies = new HashMap<>();
+    //     String predecessors = "";
+    //     for(Task t : dependencies){
+    //         log.info("\t\t" + t.getId() + " -> " + listAsString(t.getPredecessors()));
+    //         String taskDep = listAsString(t.getPredecessors());
+
+    //         if (predecessors.length() == 0) {
+    //             predecessors = taskDep;
+    //         } else if (!predecessors.equalsIgnoreCase(taskDep)) return false;
+    //     }
+    //     return true;
+    // }
+
+    private Boolean dependenciesShareAnyPredecessor(List<Task> dependencies){
+        Map<String, Task> predecessors = new HashMap<>();
+        for(Task t : dependencies){
+            for (Task pred : t.getPredecessors()){
+                if (predecessors.containsKey(pred.getId()) ) return true;
+                else predecessors.put(pred.getId(), pred);
+            }
+        }
+        return false;
+    }
+
     private void createDummyTasks() {
-        List<Task> tasksToAdd = new ArrayList<>();
+        // List<Task> tasksToAdd = new ArrayList<>();
+        List<Task> ts = tasks.values()
+                        .stream()
+                        .map(t -> t)
+                        .collect(Collectors.toCollection(ArrayList::new));
+        int index = 0;
+        // Iterator<Task> ts = tasks.values().iterator();
+        while (index < ts.size()) {
+            Task task = ts.get(index);
 
-        Iterator<Task> ts = tasks.values().iterator();
-        while (ts.hasNext()) {
-            Task task = ts.next();
-
+            log.debug("Task: " + task.getId());
             // If there are task wich depends on task
             if (!task.getDependencies().isEmpty()) {
+                String conflictTaskId = getDepWithDifferentPredecessors(task.getDependencies());
+                while (conflictTaskId != null && 
+                    dependenciesShareAnyPredecessor(task.getDependencies())) {
 
-                // When more than one task depends on task
-                if (task.getDependencies().size() > 1) {
+                // List<Task> taskDependencies = task.getDependencies()
+                //                                     .stream()
+                //                                     .map(p -> tasks.get(p.getId()))
+                //                                     .filter(p -> p != null) 
+                //                                     .collect(Collectors.toList());
 
-                    Iterator<Task> nextTasks = task.getDependencies().iterator();
-                    while (nextTasks.hasNext()) {
-                        Task next = nextTasks.next();
-  
-                        // review if those dependents tasks depend on more than 1 task
-                        if (next.getPredecessors().size() > 1) {
-                            // This situation is not possible, it require one dummy task to be created
+                // // When more than one task depends on task
+                // // if (task.getDependencies().size() > 1) {
+                // if (!depWithSamePredecessors(taskDependencies)) {
+                    log.debug("\tTask " + task.getId() + " has dependencies with different predecessors");
+                   
+                    //Iterator<Task> nextTasks = task.getDependencies().iterator();
+                    //while (nextTasks.hasNext()) {
+                        Task conflictTask = tasks.get(conflictTaskId);//nextTasks.next();
+                        log.debug("\t\tDep: " + conflictTask.getId());
+
+                        // List<Task> taskDependencies = task.getDependencies()
+                        // .stream()
+                        // .map(p -> tasks.get(p.getId()))
+                        // .filter(p -> p != null) 
+                        // .collect(Collectors.toList());
+
+                        
+
+                        // //Aquí debo hacer una lista de predecesores nueva con los elementos 
+                        // //originales para que no pierdan información al hacer la recursión
+                        // List<Task> nextPredecessors = next.getPredecessors()
+                        //                             .stream()
+                        //                             .map(p -> tasks.get(p.getId()))
+                        //                             .filter(p -> p != null) 
+                        //                             .collect(Collectors.toList());
+                        // // review if those dependents tasks depend on more than 1 task
+                        // if (nextPredecessors.size() > 1) { // && 
+                            //predecessorsShareSameDependency(nextPredecessors)) {
+                            // This situation requires one dummy task to be created
                             // and put in middle of both tasks (task & next)
+                        
                             String dummyTaskId = "D" + dummyTaskCounter++;
                             Task dummyTask = new Task(dummyTaskId,
                                     "Dummy task",
                                     0d,
                                     Arrays.asList(task),
-                                    this.project,
+                                    task.getProject(),
                                     true, -1d, -1d, -1d, -1d,
-                                    Arrays.asList(next));
-                            
-                            nextTasks.remove();
+                                    Arrays.asList(conflictTask));
+                            log.debug("\t\tCreo dummy: " + dummyTaskId);
+                            tasks.put(dummyTaskId, dummyTask);
+                            //Remuevo como dependencia a next
+                            //nextTasks.remove();
+                            task.getDependencies().remove(conflictTask);
 
-                            // task.getDependencies().removeIf(r ->
-                            // next.getId().equalsIgnoreCase(r.getId()));
-                            //task.getDependencies().add(dummyTask);
-                            tasksToAdd.add(dummyTask);
+                            //tasksToAdd.add(dummyTask);
 
-                            Iterator<Task> predecessorsIterator = next.getPredecessors().iterator();
-                            while (predecessorsIterator.hasNext()) {
-                                Task predecessor = predecessorsIterator.next();
-                                if (predecessor.getId().equalsIgnoreCase(task.getId())){
-                                    predecessorsIterator.remove();
-                                }
-                            }
-                            // next.getPredecessors().removeIf(r ->
-                            // task.getId().equalsIgnoreCase(r.getId()));
-                            next.getPredecessors().add(dummyTask);
-                        }
-                    }
-                    task.getDependencies().addAll(tasksToAdd);
+                            // conflictTask.replacePredecessor(task, dummyTask);
+                            conflictTask.getPredecessors().remove(task);
+                            conflictTask.getPredecessors().add(dummyTask);
+
+                            log.debug("\t\tTask: " + conflictTask.getId() + " cambio predecesores: " + task.getId() + " x " + dummyTaskId);
+                       
+                        
+                    // }
+                    task.getDependencies().add(dummyTask);
+                    //task.getDependencies().addAll(tasksToAdd);
+                    conflictTaskId = getDepWithDifferentPredecessors(task.getDependencies());
                 }
             }
+            ts = tasks.values().stream()
+                        .map(t -> t)
+                        .collect(Collectors.toList());
+            index++;
         }
         //Agrego las tareas dummies al mapa tasks
-        Map<String,Task> toAdd = tasksToAdd.stream()
-                        .collect(Collectors.toMap(Task::getId, element -> element));
-        tasks.putAll(toAdd);
+        // Map<String,Task> toAdd = tasksToAdd.stream()
+        //                 .collect(Collectors.toMap(Task::getId, element -> element));
+        // tasks.putAll(toAdd);
     }
 
     private void edgeAddOrigin(Task task, Task prev) {
