@@ -423,23 +423,34 @@ public class Workflow2 {
             if (edgeTask.getTo() == null) {
                 //Antes de crear un nuevo nodo tengo que ver si hay otra de las dependencias que si 
                 //este creada, solo si ninguna tiene el from establecido puedo crear un nodo
-                String found = "";
+                Long foundNode = 0L;
                 for(String t : task.getDependencies().split(",")) {
                     if (!t.equalsIgnoreCase(next)){
                         if (edges.containsKey(t) && edges.get(t).getFrom() != null) {
-                            found = t;
+                            foundNode = edges.get(t).getFrom().getId();
                             break;
                         }
                     }
                 }
-                if (found.equals("")) {
+                //Si aun no se ha encontrado un nodo asignado a una arista
+                //todavía se puede buscar por los nodos destino de las precedencias
+                //de la dependencia
+                TaskElement nextTask = tasks.get(next);
+                for(String t : nextTask.predecessors.split(",")) {
+                    if (edges.containsKey(t) && edges.get(t).getTo() != null) {
+                        foundNode = edges.get(t).getTo().getId();
+                        break;
+                    }
+                }
+
+                if (foundNode == 0L) {
                     // Creo un nuevo nodo y se lo asigno al campo to
                     Long newNodeId = nodeCounter++;
                     Node newNode = new Node(newNodeId, newNodeId.toString());
                     nodes.put(newNodeId, newNode);
                     edgeTask.setTo(newNode);
                     log.debug("add destination: Nodo " + newNodeId + " creado.");
-                }
+                } else edgeTask.setTo(nodes.get(foundNode));
                 
             } else {
                 //Aquí no hace falta hacer nada, entra cuando hay varias dependencias,
@@ -453,7 +464,7 @@ public class Workflow2 {
             log.debug(task.getId());
             // log.info("task: ".concat(t));
             if (!edges.containsKey(t)) {
-                Edge newEdge = new Edge(t, t + "," + task.getLength(), null, null, false);
+                Edge newEdge = new Edge(t, t + " (" + task.getLength() + ")", null, null, false);
                 edges.put(t, newEdge);
                 // log.info("Se agrega edge " + t);
             }
