@@ -1,9 +1,22 @@
 
 <div class="vis-container">
 
-    <button class="lock-button" (click)="onLockButtonClick()">
-        <img src="assets/images/pin.png" alt="" width="40px" height="40px"/>
+    <button class="lock-button" [class.selected]="keepPositions" (click)="onLockButtonClick()" title="Bloquear posiciones">
+        <span *ngIf="keepPositions" class="material-symbols-outlined">keep</span>
+        <span *ngIf="!keepPositions" class="material-symbols-outlined">keep_off</span>
+        <!-- <img src="assets/images/pin.png" alt="" width="40px" height="40px"/> -->
     </button> 
+
+    <button class="zoom-in-button" (click)="onZoomInClick()">
+        <span class="material-symbols-outlined">zoom_in</span>
+    </button> 
+
+    <button class="zoom-out-button" (click)="onZoomOutClick()">
+        <span class="material-symbols-outlined">zoom_out</span>
+    </button> 
+
+    <div class="zoom-label">{{scale * 100 | number:'1.0-1'}}%</div>
+
     <!-- El div que actúa como contenedor del grafo -->
     <div *ngIf="error === ''; else errorTemplate" id="network" class="chart" >
         <!-- Contenido del gráfico -->
