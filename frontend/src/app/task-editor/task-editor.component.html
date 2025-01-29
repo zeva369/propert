@@ -1,7 +1,7 @@
 <div class="container">
     <div class="tasklist">
         <div class="tasklist-title">
-            Listado de tareas
+            Task list
         </div>    
         <div class="task-list">
             <div *ngFor="let task of tasks" [class.selected]="task.id == selectedTask.id" class="task-element" (click)="selectTask(task)">
@@ -17,7 +17,7 @@
     </div>
     <div class="taskdetail">
         <div class="taskdetail-title">
-            Detalle de la tarea
+            Task detail
         </div>
         <div class="task-detail">
             <div class="input-group">
@@ -26,19 +26,19 @@
             </div>
             <div class="input-group">
                 <input id="taskDescription" type="text" [(ngModel)]="selectedTask.description" autocomplete="off" required>
-                <label for="">Descripción</label>
+                <label for="">Description</label>
             </div>
             <div class="input-group">
                 <input id="taskLength" type="number" [(ngModel)]="selectedTask.length" autocomplete="off" step="any" required>
-                <label for="">Duración</label>
+                <label for="">Length</label>
             </div>
             <div class="input-group">
                 <input id="taskPredecessors" type="text" [(ngModel)]="taskPredecessors" autocomplete="off" required>
-                <label for="">Predecesores</label>
+                <label for="">Predecessors</label>
             </div>
             <div class="button-bar">
-                <button class="action-button" (click)="clear()" title="Borrar datos para empezar una nueva tarea">Limpiar</button>
-                <button class="action-button" (click)="save()" title="Guardar tarea">Guardar</button>
+                <button class="action-button" (click)="clear()" title="Clear fields to start a new task">Clear</button>
+                <button class="action-button" (click)="save()" title="Save task">Save</button>
             </div>
         </div>
     </div>
