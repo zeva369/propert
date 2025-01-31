@@ -19,7 +19,7 @@ import com.seva.propert.dto.TaskInDTO;
 import com.seva.propert.exception.ProperBackendException;
 import com.seva.propert.exception.WorkFlowLoopException;
 import com.seva.propert.model.entity.Task;
-import com.seva.propert.model.pert.Workflow2;
+import com.seva.propert.model.pert.Workflow;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +43,7 @@ public class GuestController {
     }
 
     @PostMapping
-    public ResponseEntity<Workflow2> processTaskList(@RequestBody List<TaskInDTO> ts) {
+    public ResponseEntity<Workflow> processTaskList(@RequestBody List<TaskInDTO> ts) {
         List<Task> tasks = ts.stream()
                             .map(dto -> conversionService.convert(dto, Task.class))
                             .collect(Collectors.toCollection(ArrayList::new));
@@ -70,7 +70,7 @@ public class GuestController {
             }
         }
 
-        Workflow2 workflow = new Workflow2(tasks);
+        Workflow workflow = new Workflow(tasks);
         try {
             workflow.checkAndInitialize();
         } catch (WorkFlowLoopException e) {
