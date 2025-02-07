@@ -3,6 +3,8 @@ package com.seva.propert.model.pert;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import com.seva.propert.model.entity.Task;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -53,4 +55,19 @@ public class TaskElement {
                 .collect(Collectors.joining(","));
     }
 
+    public static TaskElement fromTask(Task t) {
+        TaskElement element = new TaskElement();
+        element.id = t.getId();
+        element.description = t.getDescription();
+        element.length = t.getLength();
+
+        element.predecessors = t.getPredecessors().stream()
+                .map(Task::getId)
+                .collect(Collectors.joining(","));
+        element.dependencies = t.getDependencies().stream()
+                .map(Task::getId)
+                .collect(Collectors.joining(","));
+
+        return element;
+    }
 }

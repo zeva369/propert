@@ -2,6 +2,7 @@ package com.seva.propert.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,48 +30,74 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/guest/projects")
 public class GuestController {
 
-    @Autowired
+
     private ErrorMessages errorMessages;
-    
-    @Autowired
 	private ConversionService conversionService;
 
-    private Task getById(String id, List<Task> tasks) {
-        for (Task t : tasks) {
-            if (t.getId().equalsIgnoreCase(id)) return t;
-        }
-        return null;
+    public GuestController(ErrorMessages errorMessages, ConversionService conversionService) {
+        this.errorMessages = errorMessages;
+        this.conversionService = conversionService;
     }
+
+    // private Task getById(String id, List<Task> tasks) {
+    //     for (Task t : tasks) {
+    //         if (t.getId().equalsIgnoreCase(id)) return t;
+    //     }
+    //     return null;
+    // }
 
     @PostMapping
     public ResponseEntity<Workflow> processTaskList(@RequestBody List<TaskInDTO> ts) {
-        List<Task> tasks = ts.stream()
+        Map<String, Task> tasks = ts.stream()
                             .map(dto -> conversionService.convert(dto, Task.class))
-                            .collect(Collectors.toCollection(ArrayList::new));
-
-        //new ArrayList<>();
-        //for (TaskInDTO dto : ts) tasks.add(conversionService.convert(dto, Task.class));
+                            .collect(Collectors.toMap(Task::getId, t -> t));
 
         //Once the task list is converted we need to
         //hidrate each task's predecessors instances
-        for (Task t: tasks) {
-            if (!t.getPredecessors().isEmpty()){
-                List<Task> predecessors = new ArrayList<>();
-                for (Task pred : t.getPredecessors()) {
-                    Task task = getById(pred.getId(),tasks);
-                    Task predTask = new Task();
-                    predTask.setId(task.getId());
-                    predTask.setDescription(task.getDescription());
-                    predTask.setLength(task.getLength());
-                    predTask.setDependencies(Task.cloneCollection(task.getDependencies()));
-                    predTask.setPredecessors(Task.cloneCollection(task.getPredecessors()));
-                    predecessors.add(predTask);
-                }
-                t.setPredecessors(predecessors);
-            }
-        }
+        tasks.forEach((k, t) -> {
+            List<Task> predecessors = new ArrayList<>();
 
-        Workflow workflow = new Workflow(tasks);
+            t.getPredecessors().stream()
+                .map(p -> tasks.get(p.getId()))
+                .forEach(p -> {
+                    Task predTask = new Task();
+                    predTask.setId(p.getId());
+                    predTask.setDescription(p.getDescription());
+                    predTask.setLength(p.getLength());
+                    predTask.setDependencies(Task.cloneCollection(p.getDependencies()));
+                    predTask.setPredecessors(Task.cloneCollection(p.getPredecessors()));
+                    predecessors.add(predTask);
+                });
+            t.setPredecessors(predecessors);
+        });
+
+        // for (Task t: tasks) {
+        //     if (!t.getPredecessors().isEmpty()){
+        //         List<Task> predecessors = new ArrayList<>();
+        //         for (Task pred : t.getPredecessors()) {
+        //             Task task = getById(pred.getId(),tasks);
+
+        //             if (task == null) {
+        //                 throw new ProperBackendException(HttpStatus.INTERNAL_SERVER_ERROR, "Task not found " + pred.getId());
+        //             }
+
+        //             Task predTask = new Task();
+        //             predTask.setId(task.getId());
+        //             predTask.setDescription(task.getDescription());
+        //             predTask.setLength(task.getLength());
+        //             predTask.setDependencies(Task.cloneCollection(task.getDependencies()));
+        //             predTask.setPredecessors(Task.cloneCollection(task.getPredecessors()));
+        //             predecessors.add(predTask);
+        //         }
+        //         t.setPredecessors(predecessors);
+        //     }
+        // }
+
+        List<Task> taskList = tasks.values()
+            .stream()
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        Workflow workflow = new Workflow(taskList);
         try {
             workflow.checkAndInitialize();
         } catch (WorkFlowLoopException e) {
