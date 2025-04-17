@@ -1,6 +1,5 @@
 package com.seva.propert.validation.validator;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.seva.propert.model.entity.Project;
