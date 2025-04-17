@@ -26,6 +26,4 @@ public class TaskInConverter implements Converter<TaskInDTO, Task>{
         return task;
     }
 
-
-
 }

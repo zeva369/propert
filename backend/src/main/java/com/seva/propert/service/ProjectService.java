@@ -5,7 +5,6 @@ import java.util.List;
 import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
 import com.seva.propert.model.entity.Project;
-import com.seva.propert.model.entity.User;
 
 public interface ProjectService extends EntityService<Project, Long>{
     public List<Project> findByNameContaining(String pattern);

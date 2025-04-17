@@ -36,9 +36,11 @@ public class Project {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank(message = "{NotBlank.project.name}")
 	@Column(nullable = false)
     private String name;
+    
     private String description;
     
     @JsonManagedReference
@@ -51,17 +53,5 @@ public class Project {
     @JsonBackReference
     @ExistUser
     private User user = null;
-
-    //Different from tasks as tasks contains only the ones created by the user and
-    //workflow manage those plus the dummy tasks auto-generated
-    // @Transient
-    // private Workflow workflow = null;
-
-    @PostLoad
-    public void initialize() {
-        //Initialize workflow data
-        //workflow = new Workflow(tasks);
-    }
-
     
 }

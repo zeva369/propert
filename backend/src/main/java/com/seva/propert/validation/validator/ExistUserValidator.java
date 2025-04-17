@@ -9,17 +9,12 @@ import com.seva.propert.validation.annotation.ExistUser;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ExistUserValidator implements ConstraintValidator<ExistUser, User> {
 
-   // private static ApplicationContext applicationContext;
-
-   private static ApplicationContext applicationContext;
-
-    @Autowired
-    public void setApplicationContext(ApplicationContext context) {
-        applicationContext = context;
-    }
+    private static ApplicationContext applicationContext;
 
     private UserService getUserService() {
         return applicationContext.getBean(UserService.class);
@@ -36,9 +31,8 @@ public class ExistUserValidator implements ConstraintValidator<ExistUser, User> 
         if (user == null || user.getId() == null) {
             return false;
         }
-        if (getUserService().findById(user.getId()).isEmpty()) return false;
-      
-        return true;
+        return getUserService().findById(user.getId()).isPresent();
+ 
     }
 
     

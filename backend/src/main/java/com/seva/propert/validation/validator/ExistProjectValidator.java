@@ -9,17 +9,12 @@ import com.seva.propert.validation.annotation.ExistProject;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ExistProjectValidator implements ConstraintValidator<ExistProject, Project> {
 
-   // private static ApplicationContext applicationContext;
-
    private static ApplicationContext applicationContext;
-
-    @Autowired
-    public void setApplicationContext(ApplicationContext context) {
-        applicationContext = context;
-    }
 
     private ProjectService getProjectService() {
         return applicationContext.getBean(ProjectService.class);
@@ -36,9 +31,8 @@ public class ExistProjectValidator implements ConstraintValidator<ExistProject, 
         if (project == null || project.getId() == null) {
             return false;
         }
-        if (getProjectService().findById(project.getId()).isEmpty()) return false;
-      
-        return true;
+
+        return getProjectService().findById(project.getId()).isPresent();
     }
 
     

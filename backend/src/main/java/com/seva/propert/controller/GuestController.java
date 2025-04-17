@@ -3,9 +3,9 @@ package com.seva.propert.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/guest/projects")
 public class GuestController {
 
-
     private ErrorMessages errorMessages;
 	private ConversionService conversionService;
 
@@ -39,18 +38,12 @@ public class GuestController {
         this.conversionService = conversionService;
     }
 
-    // private Task getById(String id, List<Task> tasks) {
-    //     for (Task t : tasks) {
-    //         if (t.getId().equalsIgnoreCase(id)) return t;
-    //     }
-    //     return null;
-    // }
-
     @PostMapping
     public ResponseEntity<Workflow> processTaskList(@RequestBody List<TaskInDTO> ts) {
+        
         Map<String, Task> tasks = ts.stream()
                             .map(dto -> conversionService.convert(dto, Task.class))
-                            .collect(Collectors.toMap(Task::getId, t -> t));
+                            .collect(Collectors.toMap(Task::getId, Function.identity()));   //Function.identity() funciona como si fuese t -> t pero es mas standard
 
         //Once the task list is converted we need to
         //hidrate each task's predecessors instances
@@ -70,28 +63,6 @@ public class GuestController {
                 });
             t.setPredecessors(predecessors);
         });
-
-        // for (Task t: tasks) {
-        //     if (!t.getPredecessors().isEmpty()){
-        //         List<Task> predecessors = new ArrayList<>();
-        //         for (Task pred : t.getPredecessors()) {
-        //             Task task = getById(pred.getId(),tasks);
-
-        //             if (task == null) {
-        //                 throw new ProperBackendException(HttpStatus.INTERNAL_SERVER_ERROR, "Task not found " + pred.getId());
-        //             }
-
-        //             Task predTask = new Task();
-        //             predTask.setId(task.getId());
-        //             predTask.setDescription(task.getDescription());
-        //             predTask.setLength(task.getLength());
-        //             predTask.setDependencies(Task.cloneCollection(task.getDependencies()));
-        //             predTask.setPredecessors(Task.cloneCollection(task.getPredecessors()));
-        //             predecessors.add(predTask);
-        //         }
-        //         t.setPredecessors(predecessors);
-        //     }
-        // }
 
         List<Task> taskList = tasks.values()
             .stream()

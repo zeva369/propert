@@ -3,7 +3,6 @@ package com.seva.propert.controller;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,25 +22,20 @@ import com.seva.propert.exception.DuplicatedElementException;
 import com.seva.propert.exception.ElementNotFoundException;
 import com.seva.propert.exception.ProperBackendException;
 import com.seva.propert.exception.ValidationException;
-import com.seva.propert.model.entity.Project;
 import com.seva.propert.model.entity.Task;
 import com.seva.propert.service.TaskService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/authenticated/tasks")
 @Validated
+@RequiredArgsConstructor
 public class TaskController {
 
-	@Autowired
     private ErrorMessages errorMessages;
-
 	private final TaskService service;
-
-	public TaskController(TaskService service) {
-		this.service = service;
-	}
 
 	@GetMapping
 	public ResponseEntity<List<Task>> findAll(

@@ -43,6 +43,10 @@ public class Workflow {
     @JsonIgnore
     private Node lastNode = null;
 
+    /**
+     * Constructor for the workflow class
+     * @param tasks The list of tasks to be included in the workflow
+     */
     public Workflow(List<Task> tasks) {
         this.tasks = tasks.stream()
             .collect(Collectors.toMap(Task::getId, TaskElement::fromTask));
@@ -57,6 +61,7 @@ public class Workflow {
         initialize();
     }
 
+    
     private void initialize() {
         // Net calculations
         calcNextTasks();     // First calculate dependencies (we have only the predecessors)
@@ -78,7 +83,7 @@ public class Workflow {
      * @param inProcess The set of tasks in process
      * @return          True if a loop is detected, false otherwise
      */
-    private Boolean hasLoop(TaskElement task, Set<String> unvisited, Set<String> inProcess) {
+    private boolean hasLoop(TaskElement task, Set<String> unvisited, Set<String> inProcess) {
         if (unvisited.contains(task.getId())) {
             inProcess.add(task.getId()); // Mientras la pongo en la lista de 'en proceso'
             // Busco si alguna dependencia también está en la lista inProcess,
@@ -107,7 +112,7 @@ public class Workflow {
      * 
      * @return
      */
-    private Boolean hasLoop() {
+    private boolean hasLoop() {
         Set<String> unvisited = new HashSet<>(tasks.keySet());
         Set<String> inProcess = new HashSet<>();
 
@@ -128,7 +133,7 @@ public class Workflow {
         tasks.forEach((t, task) -> tasks.forEach((d, dependency) -> {
             if (!t.equals(d) && !dependency.getPredecessors().isEmpty() && 
                 dependency.getPredecessors().contains(t)) {
-                    task.addDependency(d);
+                task.addDependency(d);
             }
         }));
     }
@@ -142,8 +147,8 @@ public class Workflow {
      */
     private String orderTasks(String taskList) {
         return Arrays.stream(taskList.split(","))
-                .sorted()
-                .collect(Collectors.joining(","));
+            .sorted()
+            .collect(Collectors.joining(","));
     }
 
     /**
