@@ -463,7 +463,7 @@ public class Workflow {
     }
 
     /**
-     *  Calculates the edges and nodes of the workflow
+     *  Compute the edges and nodes of the workflow
      *  based on the tasks predecessors & dependencies
      *  creates the edges and then links them with the nodes
      *  creating nodes when necessary
