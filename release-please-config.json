@@ -1,0 +1,12 @@
+{
+  "packages": {
+    "backend": {
+      "path": "backend",
+      "component": "backend"
+    },
+    "frontend": {
+      "path": "frontend",
+      "component": "frontend"
+    }
+  }
+}
