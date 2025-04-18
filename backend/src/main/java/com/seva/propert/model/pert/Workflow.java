@@ -505,7 +505,7 @@ public class Workflow {
 
     /**
      * For each edge include it in the "from" node's "next" collection
-     * and in the "to" node's "previous" collection. Resulting in The
+     * and in the "to" node's "previous" collection. Resulting in the
      * nodes being nested by the edges
      */
     private void nestNodes() {
