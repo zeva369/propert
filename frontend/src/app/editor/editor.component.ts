@@ -1,8 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Task } from '../entity/task';
+import { runInInjectionContext, Component, effect, signal, computed, inject, Injector} from '@angular/core';
+//Services
 import { UserService } from '../service/user.service';
 import { ProjectService } from '../service/project.service';
 import { WorkflowService } from '../service/workflow.service';
+//Model
+import { Task } from '../entity/task';
 import { Workflow } from '../entity/workflow';
 import { Project } from '../entity/project';
 import { User } from '../entity/user';
@@ -10,178 +12,104 @@ import { User } from '../entity/user';
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
-  styleUrls: ['./editor.component.css']
+  styleUrls: ['./editor.component.css'],
 })
-export class EditorComponent implements OnInit {
-  //@Output() tasksUpdated = new EventEmitter<WorkFlow | null>();
-  public workflow: Workflow | undefined = undefined;
-  public currentProject : Project | undefined = undefined;
-  public error = '';
+export class EditorComponent  {
+  private readonly userService = inject(UserService);
+  private readonly projectService = inject(ProjectService);
+  private readonly workflowService = inject(WorkflowService);
 
-  currentUser: User | null = null;
-  tasks: Task[] = [];
-  projects: Project[] = [];
-  selectedTask: Task | null = null;
+  currentUser = signal<User | null>(null);
+  projects = signal<Project[]>([]);
+  currentProject = signal<Project | null>(null);
+  tasks = signal<Task[]>([]);
+  workflow = signal<Workflow | undefined>(undefined);
+  selectedTask = signal<Task | undefined>(undefined);
+  error = signal('');
 
-  // private tasks = [ 
-  //   { id: "A", 
-  //     description: "Una tarea",
-  //     length: 2
-  //   },
-  //   { id: "B", 
-  //     description: "Una tarea",
-  //     length: 2,
-  //     predecessors: ["A","C"]
-  //   },
-  //   { id: "C", 
-  //     description: "Una tarea",
-  //     length: 4
-  //   },
-  //   { id: "D", 
-  //     description: "Una tarea",
-  //     length: 10,
-  //     predecessors: ["A"]
-  //   },
-  //   { id: "E", 
-  //     description: "Una tarea",
-  //     length: 1,
-  //     predecessors: ["C","F"]
-  //   },
-  //   { id: "F", 
-  //     description: "Una tarea",
-  //     length: 12,
-  //     predecessors: ["B"]
-  //   },
-  //   { id: "G", 
-  //     description: "Una tarea",
-  //     length: 2,
-  //     predecessors: ["D"]
-  //   },
-  //   { id: "H", 
-  //     description: "Una tarea",
-  //     length: 6
-  //   }
-  // ];
-
-  // public tasks :Task[] = [ 
-  //   { id: "A", 
-  //     description: "Una tarea",
-  //     length: 3
-  //   },
-  //   { id: "B", 
-  //     description: "Una tarea",
-  //     length: 2
-  //   },
-  //   { id: "C", 
-  //     description: "Una tarea",
-  //     length: 4,
-  //     predecessors: ["A", "B"]
-  //   },
-  //   { id: "D", 
-  //     description: "Una tarea",
-  //     length: 10,
-  //     predecessors: ["C"]
-  //   },
-  //   { id: "E", 
-  //     description: "Una tarea",
-  //     length: 1,
-  //     predecessors: ["A"]
-  //   },
-  //   { id: "K", 
-  //     description: "kk",
-  //     length: 6,
-  //     predecessors: ["C"]
-  //   } 
-  // ];
-
-  // public tasks :Task[] = [ 
-  //   { id: "A", 
-  //     description: "Una tarea",
-  //     length: 3
-  //   },
-  //   { id: "B", 
-  //     description: "Una tarea",
-  //     length: 2,
-  //     predecessors: ["A"]
-  //   },
-  //   { id: "C", 
-  //     description: "Una tarea",
-  //     length: 4,
-  //     predecessors: ["B","M"]
-  //   },
-  //   { id: "D", 
-  //     description: "Una tarea",
-  //     length: 10,
-  //     predecessors: ["B","M"]
-  //   },
-  //   { id: "E", 
-  //     description: "Una tarea",
-  //     length: 1,
-  //     predecessors: ["C"]
-  //   },
-  //   { id: "K", 
-  //     description: "kk",
-  //     length: 6,
-  //     predecessors: ["D"]
-  //   },
-  //   { id: "M", 
-  //     description: "mmmm..",
-  //     length: 6,
-  //     predecessors: ["A"]
-  //   } 
-  // ];
-
-
-  constructor(private readonly userService: UserService,
-              private readonly projectService: ProjectService,
-              private readonly workflowService: WorkflowService) { }
-
-  ngOnInit(): void {
-    //Obtengo el usuario
-    this.currentUser = this.userService.getUser();
-    //Actualizo la lista de proyectos y selecciono el primero
-    if (this.currentUser) {
-      this.projectService.getProjects(this.currentUser.id)
-      .subscribe({ 
-        next : pProjects => {
-            this.projects = pProjects;
-            if (this.projects.length>=1) this.updateCurrentProject(this.projects[0]);
-        },
-        error : (e) => { 
-          this.error = e.message;
-          this.projects = []
-        }
-      })
-    } else console.log("No user logged in");  
+  constructor() {
+    this.init();
+    this.initUser();
   }
 
-  //Consumo el evento currentProjectChanged del componente ProjectSelector
-  updateCurrentProject(currentProject: Project): void {
-    this.currentProject = currentProject;
-    this.updateTasks(this.currentProject.tasks);
+  private initUser() {
+    //TODO: Que el usuario me lo pase el componente padre
+    const user = this.userService.getUser();
+    this.currentUser.set(user);
   }
 
-    // Consumo el evento tasksUpdated del componente TaskEditor
-  // actualizando el workflow cuando las tareas cambian
-  updateTasks(tasks: Task[]): void {
-    this.tasks = tasks;
-    this.updateWorkflow();
-  }
-  
-  updateWorkflow() {
-    this.workflowService.getWorkFlow(this.tasks)
-    .subscribe({ 
-      next : pWorkflow => this.workflow = new Workflow(pWorkflow.nodes, pWorkflow.edges),
-      error : (e) => { 
-        console.log(e.message)
-        this.error = e.message;
-        this.workflow = undefined
+  private init() {
+    // Cuando cambia el usuario, se actualizan los proyectos
+    effect(() => {
+      const user = this.currentUser();
+      if (user) {
+        this.userService.setUser(user);
+        this.loadProjects(user.id);
       }
-    })
+    });    
+
+    // Cuando cambia la lista de proyectos, se actualiza el proyecto actual
+    effect(() => {
+      const projects = this.projects();
+      if (projects.length > 0) {
+        this.updateCurrentProject(projects[0]);
+      }
+    });
+
+    // Cuando cambia el proyecto actual, se actualizan las tareas
+    effect(() => {
+      const project = this.currentProject();
+      if (project) {
+        this.updateTasks(project.tasks);
+      } else {
+        this.tasks.set([]);
+      }
+    });
+
+    // Cuando cambian las tareas, se actualiza el workflow
+    effect(() => {
+      const taskList = this.tasks();
+      if (taskList.length > 0) {
+        this.loadWorkflow(taskList);
+      }
+    });
   }
 
-  onTaskSelected(task: Task): void {
-    this.selectedTask = { ...task };
+  // Método separado para manejar la lógica asíncrona
+  private loadProjects(userId: string): void {
+    this.projectService.getProjects(userId).subscribe({
+      next: (projects) => this.projects.set(projects),
+      error: (e) => this.handleProjectError(e.message),
+    });
   }
 
+  // Método separado para manejar la lógica asíncrona
+  private loadWorkflow(taskList: Task[]): void {
+    this.workflowService.getWorkFlow(taskList).subscribe({
+      next: (wf) => this.workflow.set(new Workflow(wf.nodes, wf.edges)),
+      error: (e) => this.handleWorkflowError(e.message),
+    });
+  }  
+
+  private handleProjectError(message: string): void {
+    this.error.set(message);
+    this.projects.set([]);
+  }
+
+  private handleWorkflowError(message: string): void {
+    this.error.set(message);
+    this.workflow.set(undefined);
+  }
+
+  updateCurrentProject(project: Project) {
+    this.currentProject.set(project);
+  }
+
+  updateTasks(tasks: Task[]) {
+    this.tasks.set(tasks);
+  }
+
+  onTaskSelected(task: Task) {
+    this.selectedTask.set(task);//{ ...task });
+  }
 }

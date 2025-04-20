@@ -1,9 +1,13 @@
 
 <div class="vis-container">
 
-    <button class="lock-button" [class.selected]="keepPositions" (click)="onLockButtonClick()" title="Bloquear posiciones">
-        <span *ngIf="keepPositions" class="material-symbols-outlined">keep</span>
-        <span *ngIf="!keepPositions" class="material-symbols-outlined">keep_off</span>
+    <button class="lock-button" 
+        [class.selected]="keepPositions" 
+        (click)="onLockButtonClick()" 
+        title="Bloquear posiciones">
+
+       <span *ngIf="keepPositions" class="material-symbols-outlined">keep</span>
+       <span *ngIf="!keepPositions" class="material-symbols-outlined">keep_off</span>
         <!-- <img src="assets/images/pin.png" alt="" width="40px" height="40px"/> -->
     </button> 
 
@@ -18,7 +22,7 @@
     <div class="zoom-label">{{scale * 100 | number:'1.0-1'}}%</div>
 
     <!-- El div que actúa como contenedor del grafo -->
-    <div *ngIf="error === ''; else errorTemplate" id="network" class="chart" >
+    <div *ngIf="error() === ''; else errorTemplate" id="network" class="chart" >
         <!-- Contenido del gráfico -->
                
     </div>
@@ -28,7 +32,7 @@
         <div class="error">
             <img src="assets/images/loop.png" width="100px" height="auto" alt="Error" />
             <div class="errorMessage">
-                <strong>{{ error }}</strong>
+                <strong>{{ error() }}</strong>
             </div>
         </div>
     </ng-template>

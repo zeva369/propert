@@ -18,6 +18,7 @@ import { AuthService } from './service/auth.service';
 import { TaskService } from './service/task.service';
 import { ProjectService } from './service/project.service';
 import { WorkflowService } from './service/workflow.service';
+import { CommonModule } from '@angular/common';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { WorkflowService } from './service/workflow.service';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    CommonModule,
     // RouterModule
   ],
   providers: [

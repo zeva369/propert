@@ -9,7 +9,6 @@ const routes: Routes = [
     { path: 'home', component: HomeComponent },
     { path: 'project', component: EditorComponent},
     { path: 'examples', component: ExamplesComponent },
-    // { path: 'app', component: AppComponent },
     { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirige al primer componente por defecto
   ];
 

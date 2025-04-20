@@ -12,6 +12,7 @@
     --max-width: 1200px;
     --gray-border: #3E3E3E;
     --task-selected: #272727;
+    color-scheme: light dark;
 }
 
 *{

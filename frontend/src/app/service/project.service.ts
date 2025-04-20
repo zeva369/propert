@@ -20,6 +20,7 @@ export class ProjectService {
 
   public getProjects(userId : string): Observable<Project[]> {
     
+    //Guest user has always a single Project called "My Project"
     if (userId == "guest") return new Observable<Project[]>(subscriber => {
       subscriber.next([new Project(0, "My Project", "",[])]);
     });

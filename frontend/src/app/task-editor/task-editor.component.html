@@ -4,15 +4,17 @@
             Task list
         </div>    
         <div class="task-list">
-            <div *ngFor="let task of tasks" [class.selected]="task.id == selectedTask.id" class="task-element" (click)="selectTask(task)">
-                <div>
-                    {{ task.id }} &nbsp; ({{ task.length }})  
-                    {{ task.description }}  
-                </div> 
-                <div>
-                    {{ task.predecessors }}  
+            @for(task of tasks(); track task.id) {
+                <div [class.selected]="task.id === selectedTask.id" class="task-element" (click)="selectTask(task)">
+                    <div>
+                        {{ task.id }} &nbsp; ({{ task.length }})  
+                        {{ task.description }}  
+                    </div> 
+                    <div>
+                        {{ task.predecessors }}  
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
     <div class="taskdetail">
