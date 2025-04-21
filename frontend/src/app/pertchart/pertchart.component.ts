@@ -2,46 +2,46 @@
 import { DataSet } from "vis-data";
 import { Network, Options } from "vis-network";
 import { Workflow } from "../entity/workflow";
-import { Component, effect, Input, input, Signal, signal, WritableSignal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, Input, input, OnInit, Signal, signal, WritableSignal } from "@angular/core";
 import { NodePosition } from "./node.position";
 import { Task } from "../entity/task";
 
 @Component({
   selector: 'app-pertchart',
-  templateUrl: './pertchart.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './pertchart.component.html',  
   styleUrls: ['./pertchart.component.css']
 })
-export class PertchartComponent {
-  @Input({ required: true }) workflow = signal<Workflow | undefined>(undefined);
-  @Input() error = signal<string>('');
-  @Input({ required: true }) selected = signal<Task | undefined>(undefined);
+export class PertchartComponent { //implements OnInit {
 
+  // Private signals to manage the workflow, selected task, and error messages
+  private readonly _workflow = signal<Workflow | undefined>(undefined);
+  private readonly _selectedTask = signal<Task | undefined>(undefined);
+  private readonly _error = signal<string>('');
   private readonly _keepPositions: WritableSignal<boolean> = signal(false);
 
   private network: Network | undefined = undefined;
   private positions: Record<string, NodePosition> = {};
   public scale = 1.0;
 
-  constructor() {
-    // Reacciona cuando cambia el elemento seleccionado
-    // seleccionando el Edge correspondiente en el gráfico
-    effect(() => {
-      const selectedTask = this.selected();  // Track selected
-      if (this.network && selectedTask) {
-        this.network.selectEdges([selectedTask.id]);
-      }
-    });
+  // Reacciona cuando cambia el elemento seleccionado
+  // seleccionando el Edge correspondiente en el gráfico
+  readonly taskSelectedEffect = effect(() => {
+    const selectedTask = this._selectedTask();  // Track selected
+    if (this.network && selectedTask) {
+      this.network.selectEdges([selectedTask.id]);
+    }
+  });
 
-    // Reacciona cuando cambia el workflow o el error
-    effect(() => {
-      const wf = this.workflow();
-      const error = this.error();
-      if (wf || error) {
-        if (this.keepPositions) this.savePositions();
-        this.refresh();
-      }
-    });
-  }
+  // Reacciona cuando cambia el workflow o el error
+  readonly workflowChangedEffect = effect(() => {
+    const wf = this._workflow();
+    const error = this._error();
+    if (wf || error) {
+      if (this.keepPositions) this.savePositions();
+      queueMicrotask(() => this.refresh());
+    }
+  });
 
   @Input()
   set keepPositions(value: boolean) {
@@ -52,11 +52,30 @@ export class PertchartComponent {
     return this._keepPositions();
   }
 
+  @Input()
+  set selectedTask(value: Task | undefined) {
+    this._selectedTask.set(value);
+  }
+
+  @Input()
+  set workflow(value: Workflow | undefined) {
+    this._workflow.set(value);
+  }
+
+  @Input()
+  set error(value: string) {
+    this._error.set(value);
+  }
+
+  get error (): string {
+    return this._error(); 
+  }
+  
   private refresh() {
     const networkDiv = document.getElementById("network");
     if (!networkDiv) throw new Error("No se encontró el contenedor del gráfico");
 
-    const wf = this.workflow();
+    const wf = this._workflow();
     if (!wf) {
       console.log("Algo va mal con el workflow");
       return;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { Project } from '../entity/project';
 
 @Component({
@@ -6,7 +6,7 @@ import { Project } from '../entity/project';
   templateUrl: './project-selector.component.html',
   styleUrls: ['./project-selector.component.css']
 })
-export class ProjectSelectorComponent {
+export class ProjectSelectorComponent implements OnChanges {
   @Output() currentProjectChanged = new EventEmitter<Project>();
   @Input() projects: Project[] = [];
 
@@ -17,7 +17,7 @@ export class ProjectSelectorComponent {
   }
 
   public updateProjectList() {
-    
+    // Logic to update the project list   
   }
 
 }

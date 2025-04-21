@@ -1,6 +1,7 @@
 
 <div class="editor-content">
   <div class="project-container">
+
     @if (currentUser()?.id !== 'guest') {
       <app-project-selector
         [projects]="projects()"
@@ -9,15 +10,15 @@
     }
 
     <app-task-editor 
-      [tasks]="tasks" 
+      [tasks]="tasks()" 
       (tasksUpdated)="updateTasks($event)"
-      (taskSelected)="onTaskSelected($event)">
+      (taskSelected)="selectTask($event)">
     </app-task-editor>
 
     <app-pertchart 
-      [workflow]="workflow" 
-      [error]="error" 
-      [selected]="selectedTask">
+      [workflow]="workflow()" 
+      [error]="error()" 
+      [selectedTask]="selectedTask()">
     </app-pertchart>
   </div>
 </div>

@@ -11,4 +11,5 @@ export class Workflow {
           this.nodes = nds;
           this.edges = eds;
     }
+
 }

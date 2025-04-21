@@ -22,7 +22,7 @@
     <div class="zoom-label">{{scale * 100 | number:'1.0-1'}}%</div>
 
     <!-- El div que actúa como contenedor del grafo -->
-    <div *ngIf="error() === ''; else errorTemplate" id="network" class="chart" >
+    <div *ngIf="error === ''; else errorTemplate" id="network" class="chart" >
         <!-- Contenido del gráfico -->
                
     </div>
@@ -32,7 +32,7 @@
         <div class="error">
             <img src="assets/images/loop.png" width="100px" height="auto" alt="Error" />
             <div class="errorMessage">
-                <strong>{{ error() }}</strong>
+                <strong>{{ error }}</strong>
             </div>
         </div>
     </ng-template>

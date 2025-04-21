@@ -4,7 +4,7 @@
             Task list
         </div>    
         <div class="task-list">
-            @for(task of tasks(); track task.id) {
+            @for(task of tasks; track task.id) {
                 <div [class.selected]="task.id === selectedTask.id" class="task-element" (click)="selectTask(task)">
                     <div>
                         {{ task.id }} &nbsp; ({{ task.length }})  

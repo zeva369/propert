@@ -11,11 +11,12 @@ export class UserService {
 
   constructor(private readonly http: HttpClient) {}
 
+  //This should be used to set the user when they log in or when their data is fetched from an API
   setUser(user: User): void {
     sessionStorage.setItem(this.storageKey, JSON.stringify(user));
   }
 
-  getUser(): User | null {
+  getUser(): User | undefined {
     const user = sessionStorage.getItem(this.storageKey);
     return user ? JSON.parse(user) : new User("guest", "Guest user", true);
   }

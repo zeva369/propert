@@ -1,30 +1,27 @@
-import { Component, effect, EventEmitter, Input, input, Output, signal, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, EventEmitter, input, Input, Output, signal, WritableSignal } from '@angular/core';
 import { Task } from '../entity/task';
 
 @Component({
   selector: 'app-task-editor',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './task-editor.component.html',
   styleUrls: ['./task-editor.component.css']
 })
 export class TaskEditorComponent {
   @Output() tasksUpdated = new EventEmitter<Task[]>();
   @Output() taskSelected = new EventEmitter<Task>();
-  @Input({ required: true }) tasks = signal<Task[]>([]);
-  
+  private readonly _tasks: WritableSignal<Task[]> = signal<Task[]>([]);
+  //tasks = input<Task[]>([]);
+
   selectedTask: Task = new Task();
 
-  constructor() {
-    this.init();
-  }
-
-  init() {
-    effect(() => {
-      if (this.tasks()) {
-          this.publishTasksUpdated(); // Actualiza las tareas
-      }
-    });
-  }
-
+  readonly tasksUpdatedEffect = effect(() => {
+    const tasks = this._tasks();
+    if (tasks && tasks.length > 0) {
+        this.publishTasksUpdated(); // Actualiza las tareas
+    }
+  });
+  
   get taskId(): string {
     return this.selectedTask.id;
   }
@@ -33,7 +30,7 @@ export class TaskEditorComponent {
     if (this.selectedTask.id == '') {
       this.selectedTask.id = value.trim();
     } else {
-      const ts = this.tasks().filter(t => t.id == value);
+      const ts = this._tasks().filter(t => t.id == value);
       if (ts.length > 0) {
         this.selectTask(ts[0]);
       } else {
@@ -41,6 +38,15 @@ export class TaskEditorComponent {
         this.selectedTask.id = value.trim();
       }   
     }
+  }
+
+  @Input()
+  set tasks(value: Task[]) {
+    this._tasks.set(value);
+  }
+
+  get tasks(): Task[] {
+    return this._tasks();
   }
 
   setTaskDescription(value: string) {
@@ -64,27 +70,32 @@ export class TaskEditorComponent {
   }
 
   publishTasksUpdated(): void {
-    this.tasksUpdated.emit(this.tasks());
+    this.tasksUpdated.emit(this._tasks());
   }
 
   save(): void {
-    const tasks = this.tasks();
+    const tasks = this._tasks();
+
     // Check if the task is new
     const taskIndex = tasks.findIndex(t => t.id === this.selectedTask.id);
     if (taskIndex === -1) {
       // If the task is new, add it to the list of tasks
       //tasks.push(this.selectedTask);
-      this.tasks.update(tasks => [...tasks, this.selectedTask]);
+      this._tasks.update(tasks => [...tasks, this.selectedTask]);
     } else {
       // Else update the existing task
-      tasks[taskIndex] = this.selectedTask;
+      //tasks[taskIndex] = this.selectedTask;
+      this._tasks.update(tasks =>
+        tasks.map(task => task.id === this.selectedTask.id ? this.selectedTask : task)
+      );
     }
     //this.publishTasksUpdated(); // Emitir los cambios después de añadir una nueva tarea
     this.clear();
   }
 
   public selectTask(task: Task): void {
-    this.selectedTask = { ...task};
+    //const t = { ...task};
+    this.selectedTask = task;
     this.taskSelected.emit(task);
   }
 
@@ -93,20 +104,14 @@ export class TaskEditorComponent {
   }
 
   removeTask(taskId: string): void {
-    this.tasks.set(this.tasks().filter(t => t.id != taskId));
+    this._tasks.set(this._tasks().filter(t => t.id != taskId));
     this.publishTasksUpdated(); // Emitir los cambios después de eliminar una tarea
   }
 
-  editTask(task: Task): void {
-    const tasks = this.tasks();
-    if (tasks && tasks.length > 0) {
-      const index = tasks.indexOf(task, 0);
-
-      if (index > -1 &&
-        tasks.length >= index) {
-        tasks[index] = task;
-      }
-    }
+  editTask(updatedTask: Task): void {
+    this._tasks.update(tasks =>
+      tasks.map(task => task.id === updatedTask.id ? updatedTask : task)
+    );
     this.publishTasksUpdated(); // Emitir los cambios después de editar una tarea
   }
 
