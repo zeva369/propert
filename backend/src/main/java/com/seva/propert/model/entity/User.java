@@ -23,8 +23,8 @@ public class User {
     @Id
     private String id;
     private String username;
-    private String password; // Guarda contraseñas encriptadas, no texto plano.
-    private String role;     // Ejemplo: "USER" o "ADMIN"
+    private String password; // The digested password (not raw).
+    private String role;     // "USER" , "ADMIN", etc.
 
     @JsonManagedReference
     @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL)

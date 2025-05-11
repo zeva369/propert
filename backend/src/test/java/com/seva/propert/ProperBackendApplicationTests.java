@@ -1,4 +1,4 @@
-package com.seva.proper;
+package com.seva.propert;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ProperBackendApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void contextLoads () {
+
 	}
 
 }

@@ -99,13 +99,9 @@ public class Task implements Clonable<Task> {  //, TaskEventListener{
     }
 
     public static List<Task> cloneCollection(List<Task> source) {
-        List<Task> result = new ArrayList<>();
-        for (Task t : source) {
-            result.add(t.clone());
-        }
-        return result;
+        return source.stream().map(Task::clone).collect(Collectors.toCollection(ArrayList::new));
     }
-    
+
     // public void replacePredecessor(Task oldTask, Task newTask) {
     //     // Iterator<Task> predecessorsIterator = getPredecessors().iterator();
     //     // while (predecessorsIterator.hasNext()) {
