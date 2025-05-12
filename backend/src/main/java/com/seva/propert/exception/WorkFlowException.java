@@ -1,6 +1,6 @@
 package com.seva.propert.exception;
 
-public class WorkFlowException extends Exception {
+public class WorkFlowException extends RuntimeException {
 		
 	public WorkFlowException() {
 		super();

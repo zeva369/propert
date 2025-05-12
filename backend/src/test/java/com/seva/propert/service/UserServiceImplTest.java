@@ -30,15 +30,12 @@ class UserServiceImplTest {
     private final String invalidUserName = "John Doe";
     private final String validUserName = "testuser";
 
-    private User mockUser;
-
-    UserServiceImplTest() {
-        mockUser = new User();
-        mockUser.setId(validUserId);
-        mockUser.setUsername(validUserName);
-        mockUser.setPassword("abc123");
-        mockUser.setRole("USER");
-    }
+    private final User mockUser = User.builder()
+        .id(validUserId)
+        .username(validUserName)
+        .password("abc123")
+        .role("USER")
+        .build();
 
     @Test
     @DisplayName("findUserById should return Empty")
@@ -81,16 +78,16 @@ class UserServiceImplTest {
     @Test
     @DisplayName("createUser should return a valid User object with the same attributes")
     void createUserShouldReturnAValidUser() throws Exception {
-        User newUser = new User();
-        newUser.setId(validUserId);
-        newUser.setUsername(validUserName);
-        newUser.setPassword("abc123");
-        newUser.setRole("USER");
+        User newUser = User.builder()
+            .id(validUserId)
+            .username(validUserName)
+            .password("abc123")
+            .role("USER")
+            .build();
 
         when(userRepository.save(newUser)).thenReturn(newUser);
 
         User savedUser = userService.create(newUser);
-
         Assertions.assertEquals(savedUser, newUser);
     }
 }
