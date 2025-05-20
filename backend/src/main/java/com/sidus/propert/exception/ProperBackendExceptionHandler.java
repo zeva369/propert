@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sidus.propert.context.ErrorMessages;
+import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.annotation.RequiredTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -25,13 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class ProperBackendExceptionHandler extends ResponseEntityExceptionHandler{
 
 	private final ErrorMessages errorMessages;
-
-	public ProperBackendExceptionHandler(ErrorMessages errorMessages) {
-		this.errorMessages = errorMessages;
-	}
 
 	private final ObjectMapper mapper = new ObjectMapper();
 	
@@ -110,7 +109,7 @@ public class ProperBackendExceptionHandler extends ResponseEntityExceptionHandle
 	}
 
 	@ExceptionHandler(ProperBackendException.class)
-	protected ResponseEntity<?> handleConflict(ProperBackendException ex, WebRequest request){
+	protected ResponseEntity<Object> handleConflict(ProperBackendException ex, WebRequest request){
 		ErrorDetail body = new ErrorDetail();
 		body.setTimeStamp(LocalDateTime.now());
 		body.setStatus(ex.getHttpStatus().value());

@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private ErrorMessages errorMessages;
+    private final ErrorMessages errorMessages;
 	private final TaskService service;
 
 	@GetMapping
