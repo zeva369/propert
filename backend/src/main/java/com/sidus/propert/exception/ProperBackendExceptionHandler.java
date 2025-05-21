@@ -108,6 +108,28 @@ public class ProperBackendExceptionHandler extends ResponseEntityExceptionHandle
 		return handleExceptionInternal(ex,body,new HttpHeaders(),HttpStatus.BAD_REQUEST, request);
 	}
 
+	@ExceptionHandler(TaskPredecessorNotFoundException.class)
+	protected ResponseEntity<?> handleConflict(TaskPredecessorNotFoundException ex, WebRequest request){
+		ErrorDetail body = new ErrorDetail();
+		body.setTimeStamp(LocalDateTime.now());
+		body.setStatus(HttpStatus.NOT_FOUND.value());
+		body.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
+		body.setMessage(ex.getMessage());
+
+		return handleExceptionInternal(ex,body,new HttpHeaders(),HttpStatus.NOT_FOUND, request);
+	}
+
+	@ExceptionHandler(DuplicatedElementException.class)
+	protected ResponseEntity<?> handleConflict(DuplicatedElementException ex, WebRequest request){
+		ErrorDetail body = new ErrorDetail();
+		body.setTimeStamp(LocalDateTime.now());
+		body.setStatus(HttpStatus.CONFLICT.value());
+		body.setError(HttpStatus.CONFLICT.getReasonPhrase());
+		body.setMessage(ex.getMessage());
+
+		return handleExceptionInternal(ex,body,new HttpHeaders(),HttpStatus.CONFLICT, request);
+	}
+
 	@ExceptionHandler(ProperBackendException.class)
 	protected ResponseEntity<Object> handleConflict(ProperBackendException ex, WebRequest request){
 		ErrorDetail body = new ErrorDetail();

@@ -1,9 +1,6 @@
 package com.sidus.propert.context;
 
-import com.sidus.propert.converter.TaskInConverter;
-import com.sidus.propert.converter.TaskInToTaskElementConverter;
-import com.sidus.propert.converter.UserConverter;
-import com.sidus.propert.converter.UserInConverter;
+import com.sidus.propert.converter.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -18,8 +15,10 @@ public class WebConfig implements WebMvcConfigurer{
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(new TaskInConverter());
-        registry.addConverter(new TaskInToTaskElementConverter());
+        registry.addConverter(new TaskConverter());
+        registry.addConverter(new TaskInDTOConverter());
+        registry.addConverter(new TaskDTOConverter());
+        registry.addConverter(new TaskDTOToTaskElementConverter());
         registry.addConverter(new UserInConverter());
         registry.addConverter(new UserConverter());
     }

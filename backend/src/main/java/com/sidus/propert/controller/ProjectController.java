@@ -2,6 +2,8 @@ package com.sidus.propert.controller;
 
 import java.util.List;
 
+import com.sidus.propert.dto.TaskDTO;
+import com.sidus.propert.dto.TaskInDTO;
 import com.sidus.propert.exception.DuplicatedElementException;
 import com.sidus.propert.exception.ElementNotFoundException;
 import com.sidus.propert.exception.ProperBackendException;
@@ -102,5 +104,13 @@ public class ProjectController {
 			throw new ProperBackendException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessages.PROJECT_DELETE_CANT_DELETE);
 		}
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+	}
+
+	//Tasks
+	@PostMapping("/{id}/tasks")
+	public ResponseEntity<TaskDTO> createTask(@PathVariable(value = "id") Long projectId,
+										 	  @Valid @RequestBody TaskInDTO taskIn) {
+		TaskDTO createdTask = this.service.createTask(projectId, taskIn);
+		return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
 	}
 }

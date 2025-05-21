@@ -16,5 +16,4 @@ INSERT INTO task (id, description, length, project_id, is_dummy) VALUES
 
 -- Predecesores
 INSERT INTO task_predecessors (id, predecessor_id) VALUES
-  ('task2', 'task1'),
   ('task3', 'task2');

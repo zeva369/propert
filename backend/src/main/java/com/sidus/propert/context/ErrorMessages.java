@@ -39,6 +39,15 @@ public class ErrorMessages {
     @Value("${controller.task.delete-by-id.cant-delete}")
     public String TASK_DELETE_CANT_DELETE;
 
+    @Value("${controller.task.predecessor.not-found}")
+    public String TASK_PREDECESSOR_NOT_FOUND;
+
+    @Value("${controller.task.create.project-id-mismatch}")
+    public String TASK_CREATE_PROJECT_ID_MISMATCH;
+
+    @Value("${service.task.delete.not-found}")
+    public String TASK_DELETE_NOT_FOUND;
+
     @Value("${workflow.loop}")
     public String WORKFLOW_LOOP;
 }

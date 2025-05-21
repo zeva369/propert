@@ -2,6 +2,8 @@ package com.sidus.propert.controller;
 
 import java.util.List;
 
+import com.sidus.propert.dto.TaskDTO;
+import com.sidus.propert.exception.*;
 import com.sidus.propert.model.entity.Task;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -11,14 +13,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.sidus.propert.context.ErrorMessages;
-import com.sidus.propert.exception.DuplicatedElementException;
-import com.sidus.propert.exception.ElementNotFoundException;
-import com.sidus.propert.exception.ProperBackendException;
-import com.sidus.propert.exception.ValidationException;
 import com.sidus.propert.service.TaskService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -31,7 +31,7 @@ public class TaskController {
 	private final TaskService service;
 
 	@GetMapping
-	public ResponseEntity<List<Task>> findAll(
+	public ResponseEntity<List<TaskDTO>> findAll(
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "projectId", required = false) Long projectId) {
 		if (description == null && projectId == null)
@@ -43,8 +43,8 @@ public class TaskController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Task> findById(@PathVariable String id) {
-		Task foundTask = this.service.findById(id)
+	public ResponseEntity<TaskDTO> findById(@PathVariable String id) {
+		TaskDTO foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 		return ResponseEntity.ok(foundTask);
@@ -52,68 +52,78 @@ public class TaskController {
 
 	// ---- Predecessors ----
 	@GetMapping("/{id}/predecessors")
-	public ResponseEntity<List<Task>> findPredecessors(@PathVariable String id) {
-		Task foundTask = this.service.findById(id)
+	public ResponseEntity<List<TaskDTO>> findPredecessors(@PathVariable String id) {
+		TaskDTO foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
-		return ResponseEntity.ok(foundTask.getPredecessors());
+		return ResponseEntity.ok(foundTask.predecessors().stream()
+				.map(t -> this.service.findById(t)
+						.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
+								errorMessages.TASK_FIND_BY_ID_NOT_FOUND)))
+				.toList());
 	}
 
-	//In the request body only the task-id is needed, that's why i'm not using validation
 	@PostMapping("/{id}/predecessors")
-	public ResponseEntity<Task> addPredecessor(@PathVariable String id, @RequestBody Task taskIn) {
+	public ResponseEntity<TaskDTO> addPredecessor(@PathVariable String id, @RequestParam(value = "pred-id", required = false) String predId) {
 		//Only check that both tasks exists
-		Task foundTask = this.service.findById(id)
+		TaskDTO foundTask = this.service.findById(id)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
-		Task predTask = this.service.findById(taskIn.getId())
+		TaskDTO predTask = this.service.findById(predId)
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
-		foundTask.getPredecessors().add(predTask);
+		if (!foundTask.predecessors().contains(predTask.id())) {
+			foundTask.predecessors().add(predTask.id());
+		}
 		this.service.save(foundTask);
 		return ResponseEntity.status(HttpStatus.OK).body(predTask);
 	}
 	// ----------------------
 
-	@PostMapping
-	public ResponseEntity<Task> create(@Valid @RequestBody Task taskIn, BindingResult result) {
-		if (result.hasErrors()) {
-			throw new ValidationException(result);
-		}
+	@DeleteMapping("/{id}/predecessors/{pred-id}")
+	public ResponseEntity<TaskDTO> removePredecessor(@PathVariable String id, @PathVariable(name="pred-id") String predId) {
+		//Only check that both tasks exists
+		TaskDTO foundTask = this.service.findById(id)
+				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
-		Task createdTask = null;
-		try {
-			createdTask = this.service.create(taskIn);
-		} catch (DuplicatedElementException e) {
-			throw new ProperBackendException(HttpStatus.CONFLICT, errorMessages.TASK_CREATE_DUPLICATED_ELEMENT);
+		this.service.findById(predId)
+				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
+						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
+
+		if (foundTask.predecessors().contains(predId)) {
+			foundTask.predecessors().remove(predId);
+		} else {
+			throw new TaskPredecessorNotFoundException(errorMessages.TASK_PREDECESSOR_NOT_FOUND);
 		}
-		return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
+		this.service.save(foundTask);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}
 
 	// Full update (All fields supplied in the body)
 	@PutMapping("/{id}")
-	public ResponseEntity<Task> update(@PathVariable String id, @Valid @RequestBody Task taskDetails,
+	public ResponseEntity<TaskDTO> update(@PathVariable String id, @Valid @RequestBody TaskDTO taskDetails,
 			BindingResult result) {
 		if (result.hasErrors()) {
 			throw new ValidationException(result);
 		}
 
-		Task foundTask = this.service.findById(id)
+		TaskDTO foundTask = this.service.findById(id)
 				.orElseThrow(
 						() -> new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.PROJECT_UPDATE_NOT_FOUND));
 
 		BeanUtils.copyProperties(taskDetails, foundTask);
-		Task savedTask = this.service.save(foundTask);
+		TaskDTO savedTask = this.service.save(foundTask);
 
 		return ResponseEntity.status(HttpStatus.OK).body(savedTask);
 	}
 
 	// Delete an existing Task
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteById(@PathVariable(value = "id") String id) {
+	public ResponseEntity<Object> deleteById(@PathVariable(value = "id") String id) {
 		try {
 			this.service.deleteById(id);
 		} catch (ElementNotFoundException ex) {

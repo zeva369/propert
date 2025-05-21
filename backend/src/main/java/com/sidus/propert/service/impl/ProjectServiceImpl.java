@@ -1,9 +1,14 @@
 package com.sidus.propert.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.sidus.propert.dto.TaskDTO;
+import com.sidus.propert.dto.TaskInDTO;
 import com.sidus.propert.repository.ProjectRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import com.sidus.propert.exception.DuplicatedElementException;
@@ -12,13 +17,12 @@ import com.sidus.propert.model.entity.Project;
 import com.sidus.propert.service.ProjectService;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository repo;
-
-    public ProjectServiceImpl(ProjectRepository repo){
-        this.repo = repo;
-    }
+    private final TaskServiceImpl taskService;
+    private final ConversionService conversionService;
 
     @Override
     public List<Project> findAll() {
@@ -74,6 +78,24 @@ public class ProjectServiceImpl implements ProjectService {
 
 	}
 
+    @Override
+    public TaskDTO createTask(Long projectId, TaskInDTO taskIn) throws DuplicatedElementException {
+        if (taskIn.id() == null) throw new IllegalArgumentException("Task ID is null");
+        if (projectId == null) throw new IllegalArgumentException("Project ID is null");
+        Optional<Project> oProject = findById(projectId);
+        if (oProject.isEmpty()) throw new ElementNotFoundException();
+        Optional<TaskDTO> oTask = taskService.findById(taskIn.id());
+        if (oTask.isPresent()) throw new DuplicatedElementException();
+
+        TaskDTO taskToSave = new TaskDTO(
+                taskIn.id(),
+                taskIn.description(),
+                taskIn.length(),
+                projectId,
+                new ArrayList<>(taskIn.predecessors()));
+
+        return taskService.save(taskToSave);
+    }
 
 
 }

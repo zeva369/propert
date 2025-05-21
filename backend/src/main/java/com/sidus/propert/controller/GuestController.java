@@ -1,18 +1,14 @@
 package com.sidus.propert.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.sidus.propert.exception.ProperBackendException;
-import com.sidus.propert.exception.WorkFlowLoopException;
-import com.sidus.propert.model.entity.Task;
+import com.sidus.propert.dto.TaskDTO;
 import com.sidus.propert.model.pert.TaskElement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sidus.propert.context.ErrorMessages;
-import com.sidus.propert.dto.TaskInDTO;
 import com.sidus.propert.model.pert.Workflow;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +32,7 @@ public class GuestController {
 	private final ConversionService conversionService;
 
     @PostMapping
-    public ResponseEntity<Workflow> processTaskList(@RequestBody List<TaskInDTO> ts) {
+    public ResponseEntity<Workflow> processTaskList(@RequestBody List<TaskDTO> ts) {
 
         //Step 1: Convert the TaskInDTO to Task
 //        Map<String, Task> tasks = ts.stream()
