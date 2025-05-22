@@ -2,20 +2,14 @@ package com.sidus.propert.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sidus.propert.validation.annotation.ExistProject;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,7 +26,12 @@ import lombok.Setter;
 @Entity
 public class Task implements Clonable<Task> {  //, TaskEventListener{
     @Id
-    private String id;
+    @GeneratedValue(generator = "UUID")
+    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+    private UUID id;
+
+    @NotNull
+    private String label;
     private String description;
     private Double length;
 
@@ -85,6 +84,7 @@ public class Task implements Clonable<Task> {  //, TaskEventListener{
     public Task clone() {
         Task newTask = new Task();
         newTask.id = this.id;
+        newTask.label = this.label;
         newTask.description = this.description;
         newTask.length = this.length;
         newTask.project = this.project;

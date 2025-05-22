@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, EventEmitter, input, Input, Output, signal, WritableSignal } from '@angular/core';
 import { Task } from '../entity/task';
+import { Predecessor } from '../entity/predecessor';
 
 @Component({
   selector: 'app-task-editor',
@@ -22,20 +23,20 @@ export class TaskEditorComponent {
     }
   });
   
-  get taskId(): string {
-    return this.selectedTask.id;
+  get taskLabel(): string {
+    return this.selectedTask.label;
   }
 
-  set taskId(value: string) {
-    if (this.selectedTask.id == '') {
-      this.selectedTask.id = value.trim();
+  set taskLabel(value: string) {
+    if (this.selectedTask.label == '') {
+      this.selectedTask.label = value.trim();
     } else {
-      const ts = this._tasks().filter(t => t.id == value);
+      const ts = this._tasks().filter(t => t.label == value);
       if (ts.length > 0) {
         this.selectTask(ts[0]);
       } else {
         this.clear();
-        this.selectedTask.id = value.trim();
+        this.selectedTask.label = value.trim();
       }   
     }
   }
@@ -58,35 +59,55 @@ export class TaskEditorComponent {
   }
 
   get taskPredecessors() : string{
-    return this.selectedTask?.predecessors.join(', ') || '';
+    return this.selectedTask.predecessors
+    .map(pre => pre.label)
+    .filter(label => !!label)
+    .join(', ');
   }
 
   set taskPredecessors(value: string) {
     if (value !== "") {
-      this.selectedTask.predecessors = value.split(',')
+      const labels = value.split(',')
         .map(s => s.trim())
         .filter(s => s.length > 0);
+
+      // Busca los objetos Task correspondientes a cada label
+      this.selectedTask.predecessors = labels
+        .map(label => this._tasks().find(t => t.label === label))
+        .filter((task): task is Task => !!task) // Filtra los que no existen
+        .map(task => ({ id: task.id, label: task.label })); // Guarda solo id y label, o el objeto completo si lo prefieres
+    } else {
+      this.selectedTask.predecessors = [];
     }
   }
+
+  // Método para obtener las etiquetas de los predecesores de una tarea específica, no la seleccionada
+  getPredecessorLabels(task: Task): string {
+    return (task.predecessors || [])
+      .map((p: Predecessor) => p.label)
+      .join(', ');
+ }
 
   publishTasksUpdated(): void {
     this.tasksUpdated.emit(this._tasks());
   }
-
+ 
   save(): void {
     const tasks = this._tasks();
 
     // Check if the task is new
-    const taskIndex = tasks.findIndex(t => t.id === this.selectedTask.id);
+    const taskIndex = tasks.findIndex(t => t.label === this.selectedTask.label);
     if (taskIndex === -1) {
       // If the task is new, add it to the list of tasks
       //tasks.push(this.selectedTask);
+      //Set the new task id with a new UUID randomly generated
+      this.selectedTask.id = crypto.randomUUID();
       this._tasks.update(tasks => [...tasks, this.selectedTask]);
     } else {
       // Else update the existing task
       //tasks[taskIndex] = this.selectedTask;
       this._tasks.update(tasks =>
-        tasks.map(task => task.id === this.selectedTask.id ? this.selectedTask : task)
+        tasks.map(task => task.label === this.selectedTask.label ? this.selectedTask : task)
       );
     }
     //this.publishTasksUpdated(); // Emitir los cambios después de añadir una nueva tarea
@@ -103,14 +124,14 @@ export class TaskEditorComponent {
     this.selectedTask = new Task();
   }
 
-  removeTask(taskId: string): void {
-    this._tasks.set(this._tasks().filter(t => t.id != taskId));
+  removeTask(taskLabel: string): void {
+    this._tasks.set(this._tasks().filter(t => t.label != taskLabel));
     this.publishTasksUpdated(); // Emitir los cambios después de eliminar una tarea
   }
 
   editTask(updatedTask: Task): void {
     this._tasks.update(tasks =>
-      tasks.map(task => task.id === updatedTask.id ? updatedTask : task)
+      tasks.map(task => task.label === updatedTask.label ? updatedTask : task)
     );
     this.publishTasksUpdated(); // Emitir los cambios después de editar una tarea
   }

@@ -14,7 +14,8 @@ CREATE TABLE project (
 );
 
 CREATE TABLE task (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY,
+    label VARCHAR(255),
     description VARCHAR(255),
     length DOUBLE,
     project_id BIGINT NOT NULL,
@@ -23,8 +24,8 @@ CREATE TABLE task (
 );
 
 CREATE TABLE task_predecessors (
-    id VARCHAR(255) NOT NULL,
-    predecessor_id VARCHAR(255) NOT NULL,
+    id UUID NOT NULL,
+    predecessor_id UUID NOT NULL,
     PRIMARY KEY (id, predecessor_id),
     CONSTRAINT fk_task_pred_task FOREIGN KEY (id) REFERENCES task(id),
     CONSTRAINT fk_task_pred_predecessor FOREIGN KEY (predecessor_id) REFERENCES task(id)

@@ -7,11 +7,11 @@
             @for(task of tasks; track task.id) {
                 <div [class.selected]="task.id === selectedTask.id" class="task-element" (click)="selectTask(task)">
                     <div>
-                        {{ task.id }} &nbsp; ({{ task.length }})  
+                        {{ task.label }} &nbsp; ({{ task.length }})  
                         {{ task.description }}  
                     </div> 
                     <div>
-                        {{ task.predecessors }}  
+                        {{ getPredecessorLabels(task) }}  
                     </div>
                 </div>
             }
@@ -23,8 +23,8 @@
         </div>
         <div class="task-detail">
             <div class="input-group">
-                <input id="taskId" type="text" [(ngModel)]="taskId" autocomplete="off" required>
-                <label for="">Id</label>
+                <input id="taskLabel" type="text" [(ngModel)]="taskLabel" autocomplete="off" required>
+                <label for="">Label</label>
             </div>
             <div class="input-group">
                 <input id="taskDescription" type="text" [(ngModel)]="selectedTask.description" autocomplete="off" required>

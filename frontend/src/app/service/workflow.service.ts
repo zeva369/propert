@@ -3,6 +3,8 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpStatusCode } from '@ang
 import { Router } from '@angular/router';
 import { Workflow } from '../entity/workflow';
 import { catchError, Observable, throwError } from 'rxjs';
+import { Predecessor } from '../entity/predecessor';
+import { Task } from '../entity/task';
 
 
 const API_RESOURCE_ENDPOINT = 'http://127.0.0.1:8080/propert-backend/api/v1/guest/projects';
@@ -17,7 +19,7 @@ export class WorkflowService {
     
   }
 
-  public getWorkFlow(tasks:unknown): Observable<Workflow> {
+  public getWorkFlow(tasks: Task[]): Observable<Workflow> {
     
     //!!!Notar que la variable headers es inmutable, si no re reasigna el resultado de append
     //la variable no es modificada
@@ -29,8 +31,13 @@ export class WorkflowService {
       headers: headers
     };
 
+    const tasksForApi = tasks.map(task => ({
+      ...task,
+      predecessors: task.predecessors.map((p: Predecessor)=> p.id) // solo los ids
+    }));
+
     //Lo que figura en el diamante es en realidad un cast
-    return this.httpClient.post<Workflow>(API_RESOURCE_ENDPOINT, tasks, httpOptions)
+    return this.httpClient.post<Workflow>(API_RESOURCE_ENDPOINT, tasksForApi, httpOptions)
     .pipe(
        catchError((e) => {
         console.info(this.router.url)

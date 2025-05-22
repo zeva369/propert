@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,8 +37,8 @@ class TaskServiceImplTest {
 //    @InjectMocks
     private TaskServiceImpl taskService;
 
-    private String invalidTaskId = "123-abc-456-def";
-    private String validTaskId = "123-456-789";
+    private UUID invalidTaskId = UUID.randomUUID();
+    private UUID validTaskId = UUID.fromString("4c97a9a8-017e-48ae-969b-f4bfc26476f6");
 
     private Long invalidProjectId = -1L;
     private Long validProjectId = 3L;
@@ -56,7 +57,8 @@ class TaskServiceImplTest {
 
         mockTasks = new ArrayList<>();
         task1 = new Task();
-        task1.setId("task1");
+        task1.setId(UUID.fromString("4c97a9a8-017e-48ae-969b-f4bfc26476f6"));
+        task1.setLabel("task1");
         task1.setDescription("Task #1");
         task1.setLength(5d);
         task1.setProject(project);
@@ -64,7 +66,8 @@ class TaskServiceImplTest {
         mockTasks.add(task1);
 
         Task task2 = new Task();
-        task2.setId("task2");
+        task2.setId(UUID.fromString("fe251a45-c590-4116-b8fc-2a4eaad756dd"));
+        task2.setLabel("task2");
         task2.setDescription("Task -2-");
         task2.setLength(3d);
         task2.setProject(project);
@@ -205,6 +208,7 @@ class TaskServiceImplTest {
 
         TaskDTO taskToSave = new TaskDTO(
                 task1.getId(),
+                task1.getLabel(),
                 task1.getDescription(),
                 task1.getLength(),
                 task1.getProject().getId(),
@@ -273,6 +277,7 @@ class TaskServiceImplTest {
     void deleteShouldRunWithoutErrors() {
         TaskDTO taskToDelete = new TaskDTO(
                 task1.getId(),
+                task1.getLabel(),
                 task1.getDescription(),
                 task1.getLength(),
                 task1.getProject().getId(),

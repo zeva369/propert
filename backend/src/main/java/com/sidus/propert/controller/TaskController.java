@@ -1,10 +1,10 @@
 package com.sidus.propert.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.sidus.propert.dto.TaskDTO;
 import com.sidus.propert.exception.*;
-import com.sidus.propert.model.entity.Task;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,6 @@ import com.sidus.propert.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import static java.util.stream.Collectors.toList;
-
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/authenticated/tasks")
@@ -28,23 +26,24 @@ import static java.util.stream.Collectors.toList;
 public class TaskController {
 
     private final ErrorMessages errorMessages;
-	private final TaskService service;
+	private final TaskService taskService;
 
 	@GetMapping
 	public ResponseEntity<List<TaskDTO>> findAll(
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "projectId", required = false) Long projectId) {
 		if (description == null && projectId == null)
-			return ResponseEntity.ok(this.service.findAll());
+			return ResponseEntity.ok(this.taskService.findAll());
 		else if (projectId != null) {
-			return ResponseEntity.ok(this.service.findByProjectId(projectId));
+			return ResponseEntity.ok(this.taskService.findByProjectId(projectId));
 		} else 
-			return ResponseEntity.ok(this.service.findByDescriptionContaining(description));
+			return ResponseEntity.ok(this.taskService.findByDescriptionContaining(description));
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<TaskDTO> findById(@PathVariable String id) {
-		TaskDTO foundTask = this.service.findById(id)
+		testUUID(id);
+		TaskDTO foundTask = this.taskService.findById(UUID.fromString(id))
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 		return ResponseEntity.ok(foundTask);
@@ -53,12 +52,13 @@ public class TaskController {
 	// ---- Predecessors ----
 	@GetMapping("/{id}/predecessors")
 	public ResponseEntity<List<TaskDTO>> findPredecessors(@PathVariable String id) {
-		TaskDTO foundTask = this.service.findById(id)
+		testUUID(id);
+		TaskDTO foundTask = this.taskService.findById(UUID.fromString(id))
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
 		return ResponseEntity.ok(foundTask.predecessors().stream()
-				.map(t -> this.service.findById(t)
+				.map(t -> this.taskService.findById(UUID.fromString(t))
 						.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 								errorMessages.TASK_FIND_BY_ID_NOT_FOUND)))
 				.toList());
@@ -66,31 +66,36 @@ public class TaskController {
 
 	@PostMapping("/{id}/predecessors")
 	public ResponseEntity<TaskDTO> addPredecessor(@PathVariable String id, @RequestParam(value = "pred-id", required = false) String predId) {
+		testUUID(id);
+		testUUID(predId);
 		//Only check that both tasks exists
-		TaskDTO foundTask = this.service.findById(id)
+		TaskDTO foundTask = this.taskService.findById(UUID.fromString(id))
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
-		TaskDTO predTask = this.service.findById(predId)
+		TaskDTO predTask = this.taskService.findById(UUID.fromString(predId))
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
-		if (!foundTask.predecessors().contains(predTask.id())) {
-			foundTask.predecessors().add(predTask.id());
+		if (!foundTask.predecessors().contains(predTask.id().toString())) {
+			foundTask.predecessors().add(predTask.id().toString());
 		}
-		this.service.save(foundTask);
+		this.taskService.save(foundTask);
 		return ResponseEntity.status(HttpStatus.OK).body(predTask);
 	}
 	// ----------------------
 
 	@DeleteMapping("/{id}/predecessors/{pred-id}")
 	public ResponseEntity<TaskDTO> removePredecessor(@PathVariable String id, @PathVariable(name="pred-id") String predId) {
+		testUUID(id);
+		testUUID(predId);
+
 		//Only check that both tasks exists
-		TaskDTO foundTask = this.service.findById(id)
+		TaskDTO foundTask = this.taskService.findById(UUID.fromString(id))
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
-		this.service.findById(predId)
+		this.taskService.findById(UUID.fromString(predId))
 				.orElseThrow(() -> new ProperBackendException(HttpStatus.NOT_FOUND,
 						errorMessages.TASK_FIND_BY_ID_NOT_FOUND));
 
@@ -99,24 +104,20 @@ public class TaskController {
 		} else {
 			throw new TaskPredecessorNotFoundException(errorMessages.TASK_PREDECESSOR_NOT_FOUND);
 		}
-		this.service.save(foundTask);
+		this.taskService.save(foundTask);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}
 
 	// Full update (All fields supplied in the body)
 	@PutMapping("/{id}")
-	public ResponseEntity<TaskDTO> update(@PathVariable String id, @Valid @RequestBody TaskDTO taskDetails,
-			BindingResult result) {
-		if (result.hasErrors()) {
-			throw new ValidationException(result);
-		}
-
-		TaskDTO foundTask = this.service.findById(id)
+	public ResponseEntity<TaskDTO> update(@PathVariable String id, @Valid @RequestBody TaskDTO taskDetails) {
+		testUUID(id);
+		TaskDTO foundTask = this.taskService.findById(UUID.fromString(id))
 				.orElseThrow(
 						() -> new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.PROJECT_UPDATE_NOT_FOUND));
 
 		BeanUtils.copyProperties(taskDetails, foundTask);
-		TaskDTO savedTask = this.service.save(foundTask);
+		TaskDTO savedTask = this.taskService.save(foundTask);
 
 		return ResponseEntity.status(HttpStatus.OK).body(savedTask);
 	}
@@ -124,8 +125,9 @@ public class TaskController {
 	// Delete an existing Task
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deleteById(@PathVariable(value = "id") String id) {
+		testUUID(id);
 		try {
-			this.service.deleteById(id);
+			this.taskService.deleteById(UUID.fromString(id));
 		} catch (ElementNotFoundException ex) {
 			throw new ProperBackendException(HttpStatus.NOT_FOUND, errorMessages.TASK_DELETE_BY_ID_NOT_FOUND);
 		} catch (Exception ex) {
@@ -135,4 +137,11 @@ public class TaskController {
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}
 
+	private void testUUID(String id) {
+		try {
+			UUID.fromString(id);
+		} catch (IllegalArgumentException ex) {
+			throw new InvalidTaskIdFormatException();
+		}
+	}
 }

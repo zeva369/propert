@@ -11,6 +11,7 @@ public class TaskConverter implements Converter<Task, TaskDTO> {
     public TaskDTO convert(Task source) {
         TaskDTO taskDTO = new TaskDTO(
             source.getId(),
+            source.getLabel(),
             source.getDescription(),
             source.getLength(),
             source.getProject().getId(),
@@ -19,7 +20,7 @@ public class TaskConverter implements Converter<Task, TaskDTO> {
         if (!source.getPredecessors().isEmpty()) {
             // Fill the list with fake tasks (they must be hydrated later)
             for (Task pred : source.getPredecessors()) {
-                taskDTO.predecessors().add(pred.getId());
+                taskDTO.predecessors().add(pred.getId().toString());
             }
         }
         return taskDTO;

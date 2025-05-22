@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for Task input.
@@ -14,7 +15,7 @@ import java.util.List;
  * because it is obtained from the endpoint URL.
  */
 public record TaskInDTO(
-        @NotEmpty String id,
+        @NotEmpty String label,
         @NotEmpty String description,
         @NotNull Double length,
         @NotNull List<String> predecessors ){

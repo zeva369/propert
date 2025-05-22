@@ -2,6 +2,7 @@ package com.sidus.propert.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.sidus.propert.context.ErrorMessages;
 import com.sidus.propert.dto.TaskDTO;
@@ -30,7 +31,7 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public Optional<TaskDTO> findById(String id) throws IllegalArgumentException {
+    public Optional<TaskDTO> findById(UUID id) throws IllegalArgumentException {
         return repo.findById(id)
                 .map(task -> conversionService.convert(task, TaskDTO.class));
     }
@@ -47,6 +48,12 @@ public class TaskServiceImpl implements TaskService{
         return repo.findByProjectId(projectId).stream()
                 .map(task -> conversionService.convert(task, TaskDTO.class))
                 .toList();
+    }
+
+    @Override
+    public Optional<TaskDTO> findByProjectIdAndLabel(Long projectId, String label) {
+        return repo.findByProjectIdAndLabel(projectId, label)
+                .map(task -> conversionService.convert(task, TaskDTO.class));
     }
 
     @Override
@@ -83,7 +90,7 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public void deleteById(String id) throws ElementNotFoundException {
+    public void deleteById(UUID id) throws ElementNotFoundException {
         Optional<TaskDTO> foundTask= null;
 		try {
 			foundTask = findById(id);
@@ -94,7 +101,5 @@ public class TaskServiceImpl implements TaskService{
 			throw new ElementNotFoundException();
 		this.delete(foundTask.get());
     }
-
-    
 
 }

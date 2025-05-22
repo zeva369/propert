@@ -2,16 +2,7 @@ package com.sidus.propert.model.pert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -316,8 +307,10 @@ public class Workflow {
                     TaskElement conflictTask = tasks.get(conflictTaskId);
                     log.debug("\tTask " + task.getId() + " has conflicts with dependency: " + conflictTaskId);
 
-                    String dummyTaskId = "D" + dummyTaskCounter++;
+                    String dummyTaskId = UUID.randomUUID().toString();
+
                     TaskElement dummyTask = new TaskElement(dummyTaskId,
+                            "D" + dummyTaskCounter++,
                             "Dummy task",
                             0d,
                             task.getId(),
@@ -472,7 +465,7 @@ public class Workflow {
         tasks.forEach((t, task) -> {
             log.debug(task.getId());
             if (!edges.containsKey(t)) {
-                String labelText = String.format(Locale.ROOT,"%s (%.1f)", t, task.getLength());
+                String labelText = String.format(Locale.ROOT,"%s (%.1f)", task.getLabel(), task.getLength());
                 Edge newEdge = new Edge(t, labelText, null, null, false);
                 edges.put(t, newEdge);
             }

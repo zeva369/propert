@@ -11,6 +11,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
+import java.util.UUID;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -26,6 +28,8 @@ class TaskControllerTest {
     private int port;
 
     private String jwtToken;
+
+    private String invalidTaskId = String.valueOf(UUID.randomUUID());
 
     @BeforeAll
     void setupAll() {
@@ -88,10 +92,10 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .get("/authenticated/tasks/task1")
+            .get("/authenticated/tasks/4c97a9a8-017e-48ae-969b-f4bfc26476f6")
         .then()
             .statusCode(200)
-            .body("id", equalTo("task1"))
+            .body("id.toString()", equalTo("4c97a9a8-017e-48ae-969b-f4bfc26476f6"))
             .body("description", equalTo("Tarea inicial"))
             .body("length", equalTo(5.0f));
     }
@@ -103,7 +107,7 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .get("/authenticated/tasks/task999")
+            .get("/authenticated/tasks/" + invalidTaskId)
         .then()
             .statusCode(404);
     }
@@ -115,7 +119,7 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .get("/authenticated/tasks/task999/predecessors")
+            .get("/authenticated/tasks/"+ invalidTaskId +"/predecessors")
         .then()
             .statusCode(404);
     }
@@ -127,11 +131,11 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .get("/authenticated/tasks/task2/predecessors")
+            .get("/authenticated/tasks/594f02b6-e566-4490-99a9-b339a7c009f5/predecessors")
         .then()
             .statusCode(200)
             .body("size()", equalTo(1))
-            .body("[0].id", equalTo("task1"));
+            .body("[0].id", equalTo("fe251a45-c590-4116-b8fc-2a4eaad756dd"));
     }
 
     //Test findPredecessors with a task that has no predecessors
@@ -141,7 +145,7 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .get("/authenticated/tasks/task1/predecessors")
+            .get("/authenticated/tasks/4c97a9a8-017e-48ae-969b-f4bfc26476f6/predecessors")
         .then()
             .statusCode(200)
             .body("size()", equalTo(0));
@@ -153,9 +157,9 @@ class TaskControllerTest {
         given()
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
-            .queryParam("pred-id", "task1")
+            .queryParam("pred-id", "4c97a9a8-017e-48ae-969b-f4bfc26476f6")
         .when()
-            .post("/authenticated/tasks/task999/predecessors")
+            .post("/authenticated/tasks/"+ invalidTaskId +"/predecessors")
         .then()
             .statusCode(404);
     }
@@ -166,12 +170,12 @@ class TaskControllerTest {
         given()
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
-            .queryParam("pred-id", "task1")
+            .queryParam("pred-id", "4c97a9a8-017e-48ae-969b-f4bfc26476f6")
         .when()
-            .post("/authenticated/tasks/task2/predecessors")
+            .post("/authenticated/tasks/fe251a45-c590-4116-b8fc-2a4eaad756dd/predecessors")
         .then()
             .statusCode(200)
-            .body("id", equalTo("task1"));
+            .body("id", equalTo("4c97a9a8-017e-48ae-969b-f4bfc26476f6"));
     }
 
     //Test addPredecessor with a task that already has the predecessor
@@ -180,9 +184,9 @@ class TaskControllerTest {
         given()
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
-            .queryParam("pred-id", "task2")
+            .queryParam("pred-id", "fe251a45-c590-4116-b8fc-2a4eaad756dd")
         .when()
-            .post("/authenticated/tasks/task3/predecessors")
+            .post("/authenticated/tasks/594f02b6-e566-4490-99a9-b339a7c009f5/predecessors")
         .then()
             .statusCode(200);
     }
@@ -194,7 +198,7 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .delete("/authenticated/tasks/task999/predecessors/task1")
+            .delete("/authenticated/tasks/"+ invalidTaskId +"/predecessors/4c97a9a8-017e-48ae-969b-f4bfc26476f6")
         .then()
             .statusCode(404);
     }
@@ -206,7 +210,7 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .delete("/authenticated/tasks/task1/predecessors/task3")
+            .delete("/authenticated/tasks/4c97a9a8-017e-48ae-969b-f4bfc26476f6/predecessors/594f02b6-e566-4490-99a9-b339a7c009f5")
         .then()
             .statusCode(404);
     }
@@ -218,7 +222,7 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .delete("/authenticated/tasks/task3/predecessors/task2")
+            .delete("/authenticated/tasks/594f02b6-e566-4490-99a9-b339a7c009f5/predecessors/fe251a45-c590-4116-b8fc-2a4eaad756dd")
         .then()
             .statusCode(204);
     }
@@ -230,7 +234,7 @@ class TaskControllerTest {
             .contentType("application/json")
             .cookie("jwtToken", jwtToken)
         .when()
-            .delete("/authenticated/tasks/task2/predecessors/task999")
+            .delete("/authenticated/tasks/fe251a45-c590-4116-b8fc-2a4eaad756dd/predecessors/" + invalidTaskId)
         .then()
             .statusCode(404);
     }

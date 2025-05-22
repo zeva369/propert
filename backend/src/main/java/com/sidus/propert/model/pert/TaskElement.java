@@ -1,6 +1,7 @@
 package com.sidus.propert.model.pert;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.sidus.propert.model.entity.Task;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TaskElement {
     protected String id;
+    protected String label;
     protected String description;
     protected Double length;
 
@@ -57,15 +59,17 @@ public class TaskElement {
 
     public static TaskElement fromTask(Task t) {
         TaskElement element = new TaskElement();
-        element.id = t.getId();
+        element.id = t.getId().toString();
         element.description = t.getDescription();
         element.length = t.getLength();
 
         element.predecessors = t.getPredecessors().stream()
                 .map(Task::getId)
+                .map(UUID::toString)
                 .collect(Collectors.joining(","));
         element.dependencies = t.getDependencies().stream()
                 .map(Task::getId)
+                .map(UUID::toString)
                 .collect(Collectors.joining(","));
 
         return element;

@@ -80,19 +80,20 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public TaskDTO createTask(Long projectId, TaskInDTO taskIn) throws DuplicatedElementException {
-        if (taskIn.id() == null) throw new IllegalArgumentException("Task ID is null");
         if (projectId == null) throw new IllegalArgumentException("Project ID is null");
         Optional<Project> oProject = findById(projectId);
         if (oProject.isEmpty()) throw new ElementNotFoundException();
-        Optional<TaskDTO> oTask = taskService.findById(taskIn.id());
+        Optional<TaskDTO> oTask = taskService.findByProjectIdAndLabel(projectId, taskIn.label());
         if (oTask.isPresent()) throw new DuplicatedElementException();
 
-        TaskDTO taskToSave = new TaskDTO(
+        TaskDTO taskToSave = this.conversionService.convert(taskIn, TaskDTO.class);
+                /*new TaskDTO(
                 taskIn.id(),
+                taskIn.label(),
                 taskIn.description(),
                 taskIn.length(),
                 projectId,
-                new ArrayList<>(taskIn.predecessors()));
+                new ArrayList<>(taskIn.predecessors()));*/
 
         return taskService.save(taskToSave);
     }

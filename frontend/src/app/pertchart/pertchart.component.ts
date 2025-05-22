@@ -29,7 +29,7 @@ export class PertchartComponent { //implements OnInit {
   readonly taskSelectedEffect = effect(() => {
     const selectedTask = this._selectedTask();  // Track selected
     if (this.network && selectedTask) {
-      this.network.selectEdges([selectedTask.id]);
+      this.network.selectEdges([selectedTask.label]);
     }
   });
 

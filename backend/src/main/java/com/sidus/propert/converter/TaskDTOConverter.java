@@ -6,6 +6,8 @@ import com.sidus.propert.model.entity.Project;
 import com.sidus.propert.model.entity.Task;
 import org.springframework.core.convert.converter.Converter;
 
+import java.util.UUID;
+
 
 public class TaskDTOConverter implements Converter<TaskDTO, Task>{
 
@@ -13,6 +15,7 @@ public class TaskDTOConverter implements Converter<TaskDTO, Task>{
     public Task convert(TaskDTO source) {
         Task task = new Task();
         task.setId(source.id());
+		task.setLabel(source.label());
 		task.setDescription(source.description());
 		task.setLength(source.length());
 		Project project = new Project();
@@ -22,7 +25,7 @@ public class TaskDTOConverter implements Converter<TaskDTO, Task>{
 			//Fill the list with fake tasks (they must be hydrated later)
 			for  (String id : source.predecessors()) {
 				Task pred = new Task();
-                pred.setId(id);
+                pred.setId(UUID.fromString(id));
 				task.getPredecessors().add(pred);
 			}
 		}
