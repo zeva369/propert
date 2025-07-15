@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.sidus.propert</groupId>
 	<artifactId>propert-back</artifactId>
-	<version>0.1.1</version>
+	<version>0.2.0</version>
 	<name>ProPert Backend</name>
 	<description>Backend de Propert (Proyect Management)</description>
 	<url/>
