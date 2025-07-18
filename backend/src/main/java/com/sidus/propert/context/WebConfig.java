@@ -37,31 +37,6 @@ public class WebConfig implements WebMvcConfigurer{
 		return new BCryptPasswordEncoder();
 	}
 
-    // @Bean
-    // public UserDetailsService userDetailsService(){
-    //     UserDetails adminUser = User.builder()
-    //     		.username("admin")
-    //     		.password(passwordEncoder().encode("admin"))
-    //     		.roles("ADMIN")
-    //     		.authorities("CREATE", "READ", "UPDATE", "DELETE")
-    //     		.build();
-        
-    //     UserDetails normalUser = User.builder()
-    //     		.username("user")
-    //     		.password(passwordEncoder().encode("1234"))
-    //     		.roles("USER")
-    //     		.authorities("READ")
-    //     		.build();
-        
-
-    //     return new InMemoryUserDetailsManager(adminUser, normalUser);
-    // }
-
-    // @Bean
-    // public AuthenticationManager authenticationManager(AuthenticationConfiguration builder) throws Exception {
-    //     return builder.getAuthenticationManager();
-    // }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();

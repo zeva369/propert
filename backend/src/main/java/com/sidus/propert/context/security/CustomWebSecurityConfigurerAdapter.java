@@ -3,7 +3,10 @@ package com.sidus.propert.context.security;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import com.sidus.propert.service.JWTService;
+import com.sidus.propert.service.TokenStoreService;
 import com.sidus.propert.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -33,29 +36,21 @@ import lombok.extern.slf4j.Slf4j;
 @EnableMethodSecurity(jsr250Enabled = true,
 					  prePostEnabled = true)
 @EnableAutoConfiguration(exclude = { ErrorMvcAutoConfiguration.class })
+@RequiredArgsConstructor
 public class CustomWebSecurityConfigurerAdapter {
-    // @Autowired
-	// private JWTAuthenticationFilter jwtFilter;
-		   
-    // private final CustomUserDetailsService userDetailsService;
 
-    private final JWTHelper jwtHelper; // Inyección de la clase JWTHelper
-    private final UserService userService; // Inyección del UserService
-
-    public CustomWebSecurityConfigurerAdapter(JWTHelper jwtHelper, UserService userService) {
-        this.jwtHelper = jwtHelper;
-        this.userService = userService;
-    }
+    private final JWTService jwtService;
 
 	private static final String[] AUTH_WHITELIST = {
             "/auth/login/**",
+			"/auth/refresh/**",
 			"/users/**",
             "/guest/**",
     };
     
     @Bean
     public JWTAuthenticationFilter jwtAuthenticationFilter() {
-        return new JWTAuthenticationFilter(jwtHelper,userService, AUTH_WHITELIST);
+        return new JWTAuthenticationFilter(jwtService, authenticationEntryPoint(), AUTH_WHITELIST);
     }
 	
     @Bean
@@ -65,7 +60,8 @@ public class CustomWebSecurityConfigurerAdapter {
 					.authorizeHttpRequests(requests -> requests.requestMatchers(AUTH_WHITELIST)
 							    							   .permitAll()
 
-							    							   .requestMatchers("/authenticated/**")
+							    							   .requestMatchers("/authenticated/**",
+																	   "/auth/logout")
 															   .hasRole("USER")
 															   .anyRequest()
 															   .authenticated())
@@ -76,22 +72,8 @@ public class CustomWebSecurityConfigurerAdapter {
 		
 		return httpSecurity.build();
 	}
-	
-    // Definir el AuthenticationProvider que utiliza el CustomUserDetailsService
-    // @Bean
-    // public DaoAuthenticationProvider authenticationProvider() {
-    //     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    //     authProvider.setUserDetailsService(userDetailsService);
-    //     authProvider.setPasswordEncoder(passwordEncoder());
-    //     return authProvider;
-    // }
 
-    // @Bean
-    // public UserDetailsService userDetailsService(){
-
-    // }
-
-     @Bean
+    @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) -> {
     	    String responseString = "{\"status\":\"401\"}";
@@ -108,6 +90,7 @@ public class CustomWebSecurityConfigurerAdapter {
 		    response.getOutputStream().write(responseString.getBytes(StandardCharsets.UTF_8));
         };
     }
+
 	// @Bean
     // public AccessDeniedHandler accessDeniedHandler() {
     //     return new CustomAccessDeniedHandler();
@@ -145,23 +128,5 @@ public class CustomWebSecurityConfigurerAdapter {
 		return bean;
 	}
 
-    //  @Bean
-    // public PasswordEncoder passwordEncoder() {
-    //     return new BCryptPasswordEncoder();
-    // }
-
-    // @Bean
-    // public AuthenticationManager authManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
-    //     return http.getSharedObject(AuthenticationManagerBuilder.class)
-    //             .userDetailsService(userDetailsService)
-    //             .passwordEncoder(passwordEncoder)
-    //             .and()
-    //             .build();
-    // }
-    // Bean para gestionar la autenticación
-    // @Bean
-    // public AuthenticationManager authManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    //     return authenticationConfiguration.getAuthenticationManager();
-    // }
 	
 }

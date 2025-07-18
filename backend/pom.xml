@@ -129,6 +129,16 @@
 			<version>3.24.2</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- REDIS-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>4.4.3</version> <!-- Asegúrate de usar una versión compatible -->
+		</dependency>
 	</dependencies>
 
 <!--

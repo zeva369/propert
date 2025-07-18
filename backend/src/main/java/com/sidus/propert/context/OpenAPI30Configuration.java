@@ -45,10 +45,11 @@ public class OpenAPI30Configuration {
                 .info(new Info().title("Propert API")
                 .description("API to manage projects/tasks and workflows.")
                 .version("v3.1.0")
-                .license(new License().name("License of API").url("API license URL")))
-                .externalDocs(new ExternalDocumentation()
-                					.description("SpringShop Wiki Documentation")
-                					.url("https://springshop.wiki.github.org/docs"));
+                //.license(new License().name("License of API").url("API license URL")))
+				);
+//                .externalDocs(new ExternalDocumentation()
+//                					.description("SpringShop Wiki Documentation")
+//                					.url("https://springshop.wiki.github.org/docs"));
                 //.servers(List.of(devServer,prodServer));
     }
 }

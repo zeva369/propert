@@ -140,12 +140,18 @@ public class ProperBackendExceptionHandler extends ResponseEntityExceptionHandle
 		return handleExceptionInternal(ex,body,new HttpHeaders(),ex.getHttpStatus(), request);
 	}
 
+	@ExceptionHandler({AuthenticationException.class})
+	public ResponseEntity<String> handleAuthenticationException(AuthenticationException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+	}
+
+	@ExceptionHandler({AccessDeniedException.class})
+	public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> exception(Exception exception) throws Exception {
-		if (exception instanceof AccessDeniedException ||
-				exception instanceof AuthenticationException) {
-			throw exception;
-		}
 		log.error(exception != null ? exception.getMessage():"error:unknown");
 		ErrorDetail body = new ErrorDetail();
 		body.setTimeStamp(LocalDateTime.now());
