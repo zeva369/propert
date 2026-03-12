@@ -20,7 +20,6 @@ import java.util.Map;
 @Slf4j
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -29,7 +28,15 @@ public class AuthController {
     private final UserDetailsService userDetailsService;
     private final JWTService jwtService;
 
-    @PostMapping("/login")
+    /**
+     * The login endpoint is used to authenticate a user.
+     * It validates the user's credentials and generates an access token and a refresh token.
+     * The refresh token is stored in Redis and sent as a secure HTTP-only cookie.
+     *
+     * @param loginRequestDTO
+     * @return
+     */
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
         return userService.validateCredentials(loginRequestDTO)
                 .map(user -> {
@@ -55,7 +62,15 @@ public class AuthController {
                 .orElse(ResponseEntity.status(401).body(Map.of("message","Invalid credentials")));
     }
 
-    @PostMapping("/refresh")
+    /**
+     * The refresh endpoint is used to generate a new access token
+     * It checks the validity of the refresh token stored in a cookie.
+     * If the refresh token is valid and not expired, it generates a new access token.
+     *
+     * @param refreshToken
+     * @return
+     */
+    @PostMapping("/auth/refresh")
     public ResponseEntity<?> refresh(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
         log.info("Refresh token: {}", refreshToken);
         if (refreshToken == null || !jwtService.isValid(refreshToken) || jwtService.isTokenExpired(refreshToken)) {
@@ -73,7 +88,15 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
-    @PostMapping("/logout")
+    /**
+     * The logout endpoint is used to invalidate the refresh token.
+     * It deletes the refresh token from Redis and clears the cookie.
+     * The access token is still valid until its expiration time,
+     *
+     * @param refreshToken
+     * @return
+     */
+    @PostMapping("/authenticated/logout")
     public ResponseEntity<String> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
         if (refreshToken != null) {
             String userId = jwtService.getUsernameFromToken(refreshToken);

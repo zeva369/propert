@@ -23,6 +23,7 @@ public class TaskServiceImpl implements TaskService{
     private final TaskRepository repo;
     private final ConversionService conversionService;
 
+
     @Override
     public List<TaskDTO> findAll() {
         return repo.findAll().stream()

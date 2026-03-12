@@ -40,6 +40,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final String[] authWhitelist;
 
+    // Once per request filter ensures that the filter is only executed once per request
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -47,25 +48,30 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
+        // The Authorization header is needed for JWT authentication
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7); // Elimina "Bearer "
 
+            // Check the validity of the token
             if (!jwtService.isValid(token)) {
                 authenticationEntryPoint.commence(request, response, new AuthenticationException("Token inválido") {});
                 return;
             }
 
+            // Retrieve user information from the token
             String userId = jwtService.getUsernameFromToken(token);
             String userRole = jwtService.getUserRoleFromToken(token);
 
-            // Crear UserDetails para Spring Security
+            // Create UserDetails for the SecurityContext
             UserDetails userDetails = User.builder()
                     .username(userId)
                     .password("") // No necesitamos la contraseña aquí
                     .roles(userRole) // Roles del usuario
                     .build();
 
-            // Configurar SecurityContext con el usuario autenticado
+            // Configure SecurityContext with the authenticated user data
+            // This context will be accessible from the endpoints for
+            // retrieving user information
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             getContext().setAuthentication(authenticationToken);
@@ -76,13 +82,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Verify if the request should be filtered or not.
+     * This method checks if the request URI matches any of the whitelisted patterns.
+     * For example, the /login endpoint is whitelisted, so it will not be filtered.
+     *
+     * @param request the HttpServletRequest to check
+     * @return true if the request should not be filtered, false otherwise
+     * @throws ServletException if an error occurs during the filtering process
+     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-            AntPathMatcher pathMatcher = new AntPathMatcher();
-
-        return Arrays.stream(this.authWhitelist)
-                 .anyMatch(whitelistedPattern -> pathMatcher.match(whitelistedPattern, path));
+        String path = request.getServletPath();
+        return Arrays.stream(this.authWhitelist).anyMatch(path::startsWith);
     }
 
 }

@@ -31,16 +31,17 @@ public class GuestController {
     private final ErrorMessages errorMessages;
 	private final ConversionService conversionService;
 
+    /**
+     * This endpoint processed a list of tasks with its dependencies and returns a Workflow object.
+     * The Workflow object contains the nodes and edges of the resulting graph.
+     *
+     * @param ts (List of tasks)
+     * @return ResponseEntity<Workflow>   (Workflow object with nodes and edges)
+     */
     @PostMapping
     public ResponseEntity<Workflow> processTaskList(@RequestBody List<TaskDTO> ts) {
 
-        //Step 1: Convert the TaskInDTO to Task
-//        Map<String, Task> tasks = ts.stream()
-//                 .map(dto -> conversionService.convert(dto, Task.class))
-//                 .collect(Collectors.toMap(Task::getId, Function.identity()));   //Function.identity() funciona como si fuese t -> t pero es mas standard
-
-        //Step 2: Convert the Task to TaskElement
-        //tasks.entrySet()
+        //Convert from List<TaskDTO> to Map<String,TaskElement>
         Map<String, TaskElement> taskElements = ts.stream()
                 .map(dto -> conversionService.convert(dto, TaskElement.class))
                 .collect(Collectors.toMap(TaskElement::getId,Function.identity()
@@ -50,7 +51,6 @@ public class GuestController {
 
         Workflow workflow = new Workflow(taskElements);
         workflow.checkAndInitialize();
-
         return ResponseEntity.ok(workflow);
     }
 }

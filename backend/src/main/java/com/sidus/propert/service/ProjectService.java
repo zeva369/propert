@@ -10,6 +10,7 @@ import com.sidus.propert.model.entity.Project;
 
 public interface ProjectService extends EntityService<Project, Long>{
     List<Project> findByNameContaining(String pattern);
+    List<Project> findByUserIdAndNameContaining(String userId, String pattern);
     List<Project> findByUserId(String userId);
     Project create(Project projectIn) throws DuplicatedElementException;
     void deleteById(Long id) throws ElementNotFoundException;

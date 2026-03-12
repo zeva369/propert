@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.sidus.propert.dto.TaskDTO;
 import com.sidus.propert.dto.TaskInDTO;
 import com.sidus.propert.repository.ProjectRepository;
+import com.sidus.propert.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,9 @@ import com.sidus.propert.service.ProjectService;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository repo;
-    private final TaskServiceImpl taskService;
+    private final TaskService taskService;
     private final ConversionService conversionService;
+
 
     @Override
     public List<Project> findAll() {
@@ -42,6 +44,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<Project> findByNameContaining(String pattern) {
         return repo.findByNameContaining(pattern);
+    }
+
+    @Override
+    public List<Project> findByUserIdAndNameContaining(String userId, String pattern) {
+        return repo.findByUserIdAndNameContaining(userId, pattern);
     }
     
     @Override
@@ -87,13 +94,6 @@ public class ProjectServiceImpl implements ProjectService {
         if (oTask.isPresent()) throw new DuplicatedElementException();
 
         TaskDTO taskToSave = this.conversionService.convert(taskIn, TaskDTO.class);
-                /*new TaskDTO(
-                taskIn.id(),
-                taskIn.label(),
-                taskIn.description(),
-                taskIn.length(),
-                projectId,
-                new ArrayList<>(taskIn.predecessors()));*/
 
         return taskService.save(taskToSave);
     }

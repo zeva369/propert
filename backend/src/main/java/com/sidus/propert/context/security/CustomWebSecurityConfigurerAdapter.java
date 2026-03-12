@@ -58,17 +58,17 @@ public class CustomWebSecurityConfigurerAdapter {
         httpSecurity.csrf(csrf -> csrf.disable())                  
         			.cors( cors -> cors.configurationSource(corsConfigurationSource()))
 					.authorizeHttpRequests(requests -> requests.requestMatchers(AUTH_WHITELIST)
-							    							   .permitAll()
-
-							    							   .requestMatchers("/authenticated/**",
-																	   "/auth/logout")
-															   .hasRole("USER")
-															   .anyRequest()
-															   .authenticated())
+					   .permitAll()
+					   .requestMatchers("/authenticated/**")
+					   .hasRole("USER")
+					   .anyRequest()
+					   .authenticated()
+					)
                     .addFilterBefore(jwtAuthenticationFilter(),UsernamePasswordAuthenticationFilter.class)       
 					.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 					.exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint())
-					                         .accessDeniedHandler(accessDeniedHandler()));
+						.accessDeniedHandler(accessDeniedHandler())
+					);
 		
 		return httpSecurity.build();
 	}
